@@ -1,0 +1,104 @@
+
+2019-04-30 18:58:25,844 [DEBUG  ][src/util/loggerutil.py test_logger 28]:
+test_logging_debug
+test
+
+
+2019-04-30 18:58:25,844 [INFO   ][src/util/loggerutil.py test_logger 29]:
+test_logging_info
+
+
+2019-04-30 18:58:25,844 [WARNING][src/util/loggerutil.py test_logger 30]:
+test_logging_warning
+
+
+2019-04-30 18:58:25,845 [ERROR  ][src/util/loggerutil.py test_logger 31]:
+test_logging_error
+
+2019-04-30 18:58:46,326 [DEBUG  ][src/util/loggerutil.py test_logger 28]:
+test_logging_debug
+test
+
+2019-04-30 18:58:46,326 [INFO   ][src/util/loggerutil.py test_logger 29]:
+test_logging_info
+
+2019-04-30 18:58:46,326 [WARNING][src/util/loggerutil.py test_logger 30]:
+test_logging_warning
+
+2019-04-30 18:58:46,326 [ERROR  ][src/util/loggerutil.py test_logger 31]:
+test_logging_error
+
+2019-04-30 18:59:15,524 [DEBUG  ][src/util/loggerutil.py test_logger 28]:
+test_logging_debug
+test
+multiline
+
+2019-04-30 18:59:15,525 [INFO   ][src/util/loggerutil.py test_logger 29]:
+test_logging_info
+
+2019-04-30 18:59:15,525 [WARNING][src/util/loggerutil.py test_logger 30]:
+test_logging_warning
+
+2019-04-30 18:59:15,525 [ERROR  ][src/util/loggerutil.py test_logger 31]:
+test_logging_error
+
+2019-04-30 19:00:36,887 [DEBUG  ][src/util/loggerutil.py test_logger 29]:
+test_logging_debug
+test
+multiline
+
+2019-04-30 19:00:36,887 [INFO   ][src/util/loggerutil.py test_logger 30]:
+test_logging_info
+
+2019-04-30 19:00:36,888 [WARNING][src/util/loggerutil.py test_logger 31]:
+test_logging_warning
+
+2019-04-30 19:00:36,888 [ERROR  ][src/util/loggerutil.py test_logger 32]:
+test_logging_error
+
+2019-04-30 19:03:11,464 [DEBUG  ][src/util/loggerutil.py test_logger 25]:
+test_logging_debug
+
+2019-04-30 19:03:11,464 [INFO   ][src/util/loggerutil.py test_logger 26]:
+test_logging_info
+
+2019-04-30 19:03:11,465 [WARNING][src/util/loggerutil.py test_logger 27]:
+test_logging_warning
+
+2019-04-30 19:03:11,465 [ERROR  ][src/util/loggerutil.py test_logger 28]:
+test_logging_error
+
+2019-04-30 19:03:21,664 [DEBUG  ][src/util/loggerutil.py test_logger 25]:
+test_logging_debug
+
+2019-04-30 19:03:21,664 [INFO   ][src/util/loggerutil.py test_logger 26]:
+test_logging_info
+
+2019-04-30 19:03:21,664 [WARNING][src/util/loggerutil.py test_logger 27]:
+test_logging_warning
+
+2019-04-30 19:03:21,664 [ERROR  ][src/util/loggerutil.py test_logger 28]:
+test_logging_error
+
+2019-04-30 19:03:21,664 [INFO   ][src/util/loggerutil.py test_logger 30]:
+test
+test
+multiline
+
+2019-04-30 19:03:46,481 [DEBUG  ][src/util/loggerutil.py test_logger 25]:
+test_logging_debug
+
+2019-04-30 19:03:46,481 [INFO   ][src/util/loggerutil.py test_logger 26]:
+test_logging_info
+
+2019-04-30 19:03:46,481 [WARNING][src/util/loggerutil.py test_logger 27]:
+test_logging_warning
+
+2019-04-30 19:03:46,481 [ERROR  ][src/util/loggerutil.py test_logger 28]:
+test_logging_error
+
+2019-04-30 19:03:46,481 [INFO   ][src/util/loggerutil.py test_logger 30]:
+test
+multiline
+logging
+
