@@ -1,4 +1,7 @@
 """merkle trie for neutro chain"""
+import logging
+
+
 from typing import List
 from util.types import Hash32, Uint
 
@@ -7,23 +10,26 @@ class Trie(object):
     """a merkle trie object"""
 
     fields = [
-        (root, Hash32),
-        (transactions, List[Hash32]),
-        (nonce, Uint)
+        (root_hash, HexString),
+        (transactions, List[HexString])
     ]
 
-    __init__(self, transactions=None: List[Hash32]):
+    __init__(self, transactions=None: List[HexString]):
+        logging.getLogger().debug("creating merkle-trie with:" + transactions)
         self.transactions = transactions
-        self.root_hash = Hash32()
+        self.root_hash = HexString()
         _calc_merkle_root()
 
-    __str__(self):
+    __str__(self) -> HexString:
+        """returns the root_hash as HexString"""
         return self.string()
 
-    def get_root(self) -> Hash32:
+    def get_root(self) -> HexString:
+        """returns a HexString containing root"""
         return self.root_hash
 
     def _calc_merkle_root():
+        """private method that builds the merkle-trie and calculates root_hash"""
         txs = self.transactions.copy()
         # do until there is only one hash left
         while len(txs) != 1:
