@@ -2,8 +2,8 @@
 import logging
 
 
-from .util.types import HexString
-from .util import cryptoutil
+from .types import HexString
+from src.util import cryptoutil
 
 
 class Wallet(object):
