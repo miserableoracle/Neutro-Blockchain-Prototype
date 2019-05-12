@@ -2,8 +2,8 @@
 import logging
 
 
-from .util.types import HexString
-from .util import cryptoutil
+from .types import HexString
+from . import cryptoutil
 
 
 class Wallet(object):
@@ -13,7 +13,7 @@ class Wallet(object):
         (public_key, HexString)
     ]
 
-    def __init__(self, private_key=None: HexString):
+    def __init__(self, private_key: HexString = None):
         """takes private_key or generates a new address"""
         logging.getLogger().debug("creating wallet with:" + private_key)
         if private_key == None:

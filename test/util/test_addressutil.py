@@ -1,6 +1,6 @@
-from .util.addressutil import Wallet
-from .util.types import HexString
-from .util import hashutil
+from src.util.addressutil import Wallet
+from src.util.types import HexString
+from src.util import hashutil
 
 address = HexString("0x0123456789abcdef")
 wallte = Wallet(address)

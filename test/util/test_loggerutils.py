@@ -2,7 +2,8 @@
 import pytest
 import logging
 
-from src.util import loggerutils  # I DONT KNOW HOW THAT IS SUPPOSED TO WORK.
+# I DONT KNOW HOW THAT IS SUPPOSED TO WORK.
+from src.util import loggerutil
 
 
 def test_logging():
