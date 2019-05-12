@@ -3,15 +3,16 @@ import logging
 from typing import List
 from util.types import HexString
 
+
 class Transaction(object):
 """an Object representing a transaction dict of HexString"""
 	fields = [
-		(sender, HexString),
-		(signature, HexString),
-		(receivers, List[HexString]),
-		(amounts, List[HexString]),
-		(nonce, HexString),
-		(fee, HexString)
+		("sender", HexString),
+		("signature", HexString),
+		("receivers", List[HexString]),
+		("amounts", List[HexString]),
+		("nonce", HexString),
+		("fee", HexString),
 	]
     __init__(self, sender: HexString, receivers: List[HexString], amounts: List[HexString], nonce: HexString, fee:HexString):
     	logging.getLogger().debug("creating transaction with:" + sender + " " /

@@ -9,8 +9,8 @@ from . import cryptoutil
 class Wallet(object):
     """an address"""
     fields = [
-        (private_key, HexString)
-        (public_key, HexString)
+        ("private_key", HexString),
+        ("public_key", HexString),
     ]
 
     def __init__(self, private_key: HexString = None):
