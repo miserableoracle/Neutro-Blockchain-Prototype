@@ -1,9 +1,7 @@
 """transaction"""
 import logging
-
 from typing import List
 from util.types import HexString
-
 
 class Transaction(object):
 """an Object representing a transaction dict of HexString"""
