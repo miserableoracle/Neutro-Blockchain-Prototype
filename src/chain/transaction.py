@@ -46,7 +46,7 @@ class Transaction(object):
 
     def sign(self, private_key: HexString) -> Transaction:
         raw_hash = self.hash()
-        v, r, s = sender.sign()
+        v, r, s = sender.sign(raw_hash)
         return self.copy(v=v, r=r, s=s)
 
 

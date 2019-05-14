@@ -30,5 +30,3 @@ class Cryptoutil(object):
         """
         hashed = SHA.new(message.encode('utf8'))
         return binascii.hexlify(self.signer.sign(hashed)).decode('ascii')
-
-    def sign_transaction(self, tx: Transaction, )
