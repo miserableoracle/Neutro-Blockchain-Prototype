@@ -4,13 +4,16 @@ import Crypto.Random
 from Crypto.Hash import SHA
 from Crypto.PublicKey import RSA
 from Crypto.Signature import PKCS1_v1_5
+
 from .types import HexString
+from src.chain.transaction import Transaction
 
 
 class Cryptoutil(object):
     """
     public/private key pair
     """
+
     def __init__(self):
         self.signer = PKCS1_v1_5.new(self.generate_priate_key())
 
@@ -27,3 +30,5 @@ class Cryptoutil(object):
         """
         hashed = SHA.new(message.encode('utf8'))
         return binascii.hexlify(self.signer.sign(hashed)).decode('ascii')
+
+    def sign_transaction(self, tx: Transaction, )

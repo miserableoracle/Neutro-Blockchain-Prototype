@@ -1,4 +1,4 @@
-from .chain import Transaction
+from src.chain.transaction import Transaction
 
 sender = Wallet(HexString("0x0123456789abcdef")).string()
 receivers = [Wallet(HexString("0x0123456789abcdee")).string(),
