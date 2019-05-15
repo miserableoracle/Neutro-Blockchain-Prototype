@@ -6,9 +6,6 @@ from src.util import hashutil
 from src.util import loggerutil
 from src.util import stringutil
 
-# define a default hash for empty subtree roots
-empty_root = hashutil.hash_string("00")
-
 
 class Trie(object):
     """a merkle trie object"""
@@ -21,7 +18,7 @@ class Trie(object):
 
     def __init__(self, transactions: List[str] = None):
         self.transactions = transactions
-        self.root_hash = empty_root
+        self.root_hash = stringutil.empty_root
         if transactions:
             self._size = len(self.transactions)
             calc_merkle_root(self)
@@ -64,12 +61,17 @@ class Trie(object):
 def calc_merkle_root(trie):
     """private method that builds the merkle-trie and calculates root_hash"""
     txs = trie.transactions.copy()
+    # if there is only one tx the trie is not valid, hence we need to add an
+    # empty root
+    if len(txs) % 2 == 1:
+        txs.append(stringutil.empty_root)
+
     # do until there is only one hash left
     while len(txs) != 1:
         temp = []
         # add an empty hash if the number of hashes is unequal
         if len(txs) % 2 == 1:
-            txs.append(empty_root)
+            txs.append(stringutil.empty_root)
         # go over all pairs and hash them
         for tup in zip(txs[0::2], txs[1::2]):
             temp.append(hashutil.hash_tuple(tup[0], tup[1]))
