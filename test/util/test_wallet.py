@@ -1,3 +1,3 @@
-from src.util.wallet import Wallet
+#from src.util.wallet import Wallet
 
-wallte = Wallet()
+#wallte = Wallet()

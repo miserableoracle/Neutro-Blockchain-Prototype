@@ -1,52 +1,53 @@
 """class representing a Wallet and utils for this Wallet and Addresses"""
-import logging
-from typing import Tuple
-from . import cryptoutil
+from Crypto.PublicKey import RSA
+import json
+
+from src.util import loggerutil
+from src.util import hashutil
+from src.util import stringutil
+from src.util import cryptoutil
+from src.database import wallet_database
 
 
 class Wallet(object):
     """an address"""
     fields = [
-        ("private_key", str),
-        ("public_key", str),
+        ("address", str)
     ]
 
-    def __init__(self, private_key: str = None):
-        """takes private_key or generates a new address"""
-        logging.getLogger().debug("creating wallet")
-        if private_key == None:
-            self.private_key = cryptoutil.generate_priate_key()
+    def __init__(self, address: str = None):
+        """
+        either generates a new wallet and saves it
+        or takes an address and opens a wallet file for this address
+        """
+        if not address:
+            self.private_key = RSA.generate(1024)
+            self.public_key = self.private_key.publickey()
+            self.address = hashutil.hash_bytes(
+                self.public_key.exportKey(format="OpenSSH"))
+            # save the new wallet
+            wallet_database.save(
+                self.address, self.private_key, self.public_key)
         else:
-            self.private_key = private_key
-        self.public_key = cryptoutil.private_to_public(private_key)
+            # open existing wallet
+            self.private_key, self.public_key = wallet_database.open(address)
+            self.address = address
 
     def __str__(self) -> str:
-        """returns a HexString of this objects public_key"""
+        """returns a JsonString of itself"""
         return self.string()
 
     def __hash__(self) -> str:
-        """returns a hash of self.__str__"""
+        """returns a HexString of hash(self.__str__())"""
         return self.hash()
-
-    def get_private_key(self) -> str:
-        """returns a HexString representation of self.private_key"""
-        return self.private_key
-
-    def get_public_key(self) -> str:
-        """returns a HexString representation of self.public_key"""
-        return self.public_key
-
-    def hash(self) -> str:
-        """same as __hash__"""
-        cryptoutil.hash(self.string())
 
     def string(self) -> str:
         """same as __str__"""
-        return self.public_key
+        ret = {}
+        for f in self.fields:
+            ret.update({f[0]: getattr(self, f[0])})
+        return stringutil.dict_to_string(ret)
 
-    def sign(self, hex: str) -> Tuple[int, int, int]:
-        """signs a hexString and returns v,r,s"""
-        pass
-
-    def address(self) -> str:
-        return self.string()
+    def hash(self) -> str:
+        """same as __hash__"""
+        return hashutil.hash_string(self.string())

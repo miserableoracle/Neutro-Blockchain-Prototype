@@ -1,14 +1,11 @@
 """utils for managing crypto"""
-import Crypto
-import Crypto.Random
-from Crypto.Hash import SHA
-from Crypto.PublicKey import RSA
-from Crypto.Signature import PKCS1_v1_5
 
 
 def generate_priate_key() -> str:
-    random_generator = Crypto.Random.new().read
-    return RSA.generate(1024, random_generator)
+    private_key = RSA.generate(1024)
+    public_key = private_key.publickey()
+    print(private_key.exportKey(format='PEM'))
+    print(public_key.exportKey(format='PEM'))
 
 
 def private_to_public(private_key: bytes) -> str:

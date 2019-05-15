@@ -4,10 +4,11 @@ from typing import List
 from src.util import loggerutil
 from src.util.wallet import Wallet
 from src.util import hashutil
+from src.util import stringutil
 
 
 class Transaction(object):
-    """an Object representing a transaction dict of HexString"""
+    """an Object representing a transaction"""
     fields = [
         ("sender", Wallet),
         ("receivers", List[str]),
@@ -19,7 +20,7 @@ class Transaction(object):
         ("s", int),
     ]
 
-    def __init__(self, sender: Wallet, receivers: List[str], amounts: List[int], nonce: int, fee: int, v=0, r=0, s=0):
+    def __init__(self, sender: Wallet, receivers: List[str], amounts: List[int], nonce: int, fee: int, v: int=0, r: int=0, s: int=0):
         self.sender = sender
         self.receivers = receivers
         self.amounts = amounts
@@ -43,7 +44,7 @@ class Transaction(object):
         ret = {}
         for f in self.fields:
             ret.update({f[0]: getattr(self, f[0])})
-        return json.dumps(ret)
+        return stringutil.dict_to_string(ret)
 
     def hash(self) -> str:
         """same as __hash__"""
