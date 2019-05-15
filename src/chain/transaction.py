@@ -1,8 +1,9 @@
 """transaction"""
-import logging
 import json
 from typing import List
+from src.util import loggerutil
 from src.util.wallet import Wallet
+from src.util import hashutil
 
 
 class Transaction(object):
@@ -19,7 +20,6 @@ class Transaction(object):
     ]
 
     def __init__(self, sender: Wallet, receivers: List[str], amounts: List[int], nonce: int, fee: int, v=0, r=0, s=0):
-        logging.getLogger().debug("creating transaction")
         self.sender = sender
         self.receivers = receivers
         self.amounts = amounts
@@ -28,6 +28,7 @@ class Transaction(object):
         self.v = v
         self.r = r
         self.s = s
+        loggerutil.debug("creating transaction: " + self.string())
 
     def __str__(self) -> str:
         """returns a JsonString of itself"""

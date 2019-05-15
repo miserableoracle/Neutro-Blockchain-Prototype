@@ -1,3 +1,3 @@
 """class representing a block"""
 
-import logging
+from src.util import loggerutil

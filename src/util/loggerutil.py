@@ -20,11 +20,21 @@ logging.basicConfig(
     ])
 
 
-# TODO put in test.
-def test_logger():
-    logging.getLogger().debug("test_logging_debug")
-    logging.getLogger().info("test_logging_info")
-    logging.getLogger().warning("test_logging_warning")
-    logging.getLogger().error("test_logging_error")
+def debug(str: str):
+    """wrapper, so that configuration is loaded"""
+    logging.getLogger().debug(str)
 
-    logging.getLogger().info("test\nmultiline\nlogging")
+
+def info(str: str):
+    """wrapper, so that configuration is loaded"""
+    logging.getLogger().info(str)
+
+
+def warning(str: str):
+    """wrapper, so that configuration is loaded"""
+    logging.getLogger().warning(str)
+
+
+def error(str: str):
+    """wrapper, so that configuration is loaded"""
+    logging.getLogger().error(str)
