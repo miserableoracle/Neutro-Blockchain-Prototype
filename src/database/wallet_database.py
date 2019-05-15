@@ -1,17 +1,38 @@
 """utility used for storing and reading wallet information on the local drive"""
+from Crypto.PublicKey import RSA
 from pathlib import Path
+import os
+import shutil
 
-key_path = str(Path(__file__).parent.parent.parent) + "/.keys/"
-Path(key_path).mkdir(parents=True, exist_ok=True)
 
-
-def save(address: str, private_key, public_key):
+def save_wallet(address: str, private_key, public_key):
     """saving a newly generated key pair"""
-    with open("{0}/{1}.key".format(key_path, address), "w") as file:
-        print("address:\n{}\npublic:\n{}\nprivate:\n{}".format(address,
-                                                               public_key.exportKey(), private_key.exportKey()), file=file)
+    key_path = str(Path(__file__).parent.parent.parent) + "/.keys/" + address
+    Path(key_path).mkdir(parents=True, exist_ok=True)
+    with open("{0}/private".format(key_path), "w") as private_file:
+        print("{}".format(private_key.exportKey(
+            format="PEM").decode()), file=private_file)
+    with open("{0}/public".format(key_path), "w") as public_file:
+        print("{}".format(public_key.exportKey(
+            format="PEM").decode()), file=public_file)
+    with open("{0}/address".format(key_path), "w") as address_file:
+        print("{}".format(address), file=address_file)
 
 
-def open(address: str):
+def open_wallet(address: str):
     """loading a previously generated key pair"""
-    with open("{0}/{1}.key".format(key_path, address), "w") as file:
+    key_path = str(Path(__file__).parent.parent.parent) + "/.keys/" + address
+    if not os.path.isdir(key_path):
+        raise ValueError("there is no wallet for address " + address)
+    with open("{0}/private".format(key_path), "rb") as private_file:
+        private_key = RSA.importKey(private_file.read())
+    with open("{0}/public".format(key_path), "rb") as public_file:
+        public_key = RSA.importKey(public_file.read())
+
+    return private_key, public_key
+
+
+def remove_wallet(address: str):
+    """removes a localy saved wallet"""
+    key_path = str(Path(__file__).parent.parent.parent) + "/.keys/" + address
+    shutil.rmtree(key_path)

@@ -1,5 +1,6 @@
 """class representing a Wallet and utils for this Wallet and Addresses"""
 from Crypto.PublicKey import RSA
+from Crypto.Hash import MD5
 import json
 
 from src.util import loggerutil
@@ -26,20 +27,17 @@ class Wallet(object):
             self.address = hashutil.hash_bytes(
                 self.public_key.exportKey(format="OpenSSH"))
             # save the new wallet
-            wallet_database.save(
+            wallet_database.save_wallet(
                 self.address, self.private_key, self.public_key)
         else:
             # open existing wallet
-            self.private_key, self.public_key = wallet_database.open(address)
             self.address = address
+            self.private_key, self.public_key = wallet_database.open_wallet(
+                self.address)
 
     def __str__(self) -> str:
         """returns a JsonString of itself"""
         return self.string()
-
-    def __hash__(self) -> str:
-        """returns a HexString of hash(self.__str__())"""
-        return self.hash()
 
     def string(self) -> str:
         """same as __str__"""
@@ -48,6 +46,24 @@ class Wallet(object):
             ret.update({f[0]: getattr(self, f[0])})
         return stringutil.dict_to_string(ret)
 
-    def hash(self) -> str:
-        """same as __hash__"""
-        return hashutil.hash_string(self.string())
+    def get_address(self):
+        return self.address
+
+    def sign(self, message: str) -> str:
+        """sign a message with this wallet and return a strin of the signature"""
+        digest = MD5.new(message.encode()).digest()
+        return hex(self.private_key.sign(digest, 0)[0])[2:]
+
+    def get_public_key(self):
+        return self.public_key
+
+    def verify(self, signature: str, message: str) -> bool:
+        """verify that a message was signed with this wallet"""
+        return verify(self.public_key, signature, message)
+
+
+def verify(public_key, signature: str, message: str) -> bool:
+    """verify that a message was signed with the public_keys private_key"""
+    digest = MD5.new(message.encode()).digest()
+    sig_tuple = (int(signature, 16), )
+    return public_key.verify(digest, sig_tuple)
