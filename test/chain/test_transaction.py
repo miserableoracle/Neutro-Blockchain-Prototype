@@ -1,11 +1,16 @@
 from src.chain.transaction import Transaction
 
-sender = Wallet(HexString("0x0123456789abcdef")).string()
-receivers = [Wallet(HexString("0x0123456789abcdee")).string(),
-             Wallet(HexString("0x0123456789abcded")).string()]
-amounts = [HexString("0x01"), HexString("0x02")]
-nonce = HexString("0x00")
-fee = HexString("0x0f")
 
-tx = Transaction(sender, receivers, amounts, nonce, fee)
-# todo calc hash and sig manualy and assert ==
+def test_transaction():
+    sender = None
+    receivers = ["01", "02", "0a"]
+    amounts = [1, 2, 3]
+    nonce = 1
+    fee = 100
+
+    tx = Transaction(sender, receivers, amounts, nonce, fee)
+
+    tx_string = tx.string()
+    assert tx_string == "{sender: null, receivers: [01, 02, 0a], amounts: [1, 2, 3], nonce: 1, fee: 100, v: 0, r: 0, s: 0}"
+    tx_hash = tx.hash()
+    assert tx_hash == "90455b22739861c633e03ef56109f6d8dc7b36df08f13915455d73a49159d854"
