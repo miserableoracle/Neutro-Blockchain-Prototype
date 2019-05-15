@@ -46,7 +46,7 @@ class Transaction(object):
 
     def hash(self) -> str:
         """same as __hash__"""
-        pass
+        return hashutil.hash_string(self.string())
 
     def sign(self, private_key: str):
         raw_hash = self.hash()
