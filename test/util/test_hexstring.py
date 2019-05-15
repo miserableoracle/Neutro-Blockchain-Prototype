@@ -13,3 +13,13 @@ hex_string_value = hex_string.encode_hex(value_encoded_byte)
 
 # Assertion
 assert hex_value == hex_string_value
+
+# create an object of Hexstring class
+hex_string = Hexstring(value)
+# string to byte
+value_encoded_byte = hex_string.str_encode(value)
+# byte to hex string
+hex_string_value = hex_string.encode_hex(value_encoded_byte)
+
+# Assertion
+assert hex_value == hex_string_value
