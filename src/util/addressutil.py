@@ -1,6 +1,6 @@
 """class representing a Wallet and utils for this Wallet and Addresses"""
 import logging
-
+from typing import Tuple
 
 from .types import HexString
 from . import cryptoutil
@@ -45,3 +45,7 @@ class Wallet(object):
     def string(self) -> HexString:
         """same as __str__"""
         return self.public_key
+
+    def sign(self, hex: HexString) -> Tuple[int, int, int]
+        """signs a hexString and returns v,r,s"""
+        pass
