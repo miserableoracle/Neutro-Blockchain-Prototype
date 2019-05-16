@@ -64,8 +64,7 @@ class Block(object):
 
 
 def from_json_string(json_block: str) -> Block:
-    """generates a block_object from a json string"""
-
+    """generates a block-object from a json-string"""
     _dict = json.loads(json_block)
     block = Block(
         prev_hash=_dict["prev_hash"],

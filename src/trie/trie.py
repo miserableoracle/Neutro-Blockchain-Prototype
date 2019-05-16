@@ -24,7 +24,7 @@ class Trie(object):
             calc_merkle_root(self)
         else:
             self._size = 0
-        loggerutil.debug("creating merkle-trie with:" + self.string())
+        loggerutil.debug("creating merkle-trie with root: " + self.root())
 
     def __str__(self) -> str:
         """returns a JsonString of itself"""
@@ -58,12 +58,12 @@ class Trie(object):
         return stringutil.dict_to_string(self.transactions)
 
 
-def calc_merkle_root(trie):
+def calc_merkle_root(trie: Trie):
     """private method that builds the merkle-trie and calculates root_hash"""
     txs = trie.transactions.copy()
     # if there is only one tx the trie is not valid, hence we need to add an
     # empty root
-    if len(txs) % 2 == 1:
+    if len(txs) == 1:
         txs.append(stringutil.empty_root)
 
     # do until there is only one hash left

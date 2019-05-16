@@ -1,5 +1,6 @@
 """transaction"""
 import json
+import copy
 from typing import List
 from src.util import loggerutil
 from src.util.wallet import Wallet
@@ -10,25 +11,28 @@ from src.util import stringutil
 class Transaction(object):
     """an Object representing a transaction"""
     fields = [
-        ("sender", Wallet),
+        ("sender_address", str),
         ("receivers", List[str]),
         ("amounts", List[int]),
         ("nonce", int),
         ("fee", int),
-        ("v", int),
-        ("r", int),
-        ("s", int),
+        ("signature", str)
     ]
 
-    def __init__(self, sender: Wallet, receivers: List[str], amounts: List[int], nonce: int, fee: int, v: int=0, r: int=0, s: int=0):
-        self.sender = sender
+    def __init__(self, sender, receivers: List[str], amounts: List[int], nonce: int, fee: int, signature: str=""):
+        # is sender wallet or string
+        if isinstance(sender, Wallet):
+            self.sender = sender
+            self.sender_address = self.sender.address()
+        elif isinstance(sender, str):
+            self.sender_address = sender
+        else:
+            raise ValueError("sender must be Wallet or string")
         self.receivers = receivers
         self.amounts = amounts
         self.nonce = nonce
         self.fee = fee
-        self.v = v
-        self.r = r
-        self.s = s
+        self.signature = signature
         loggerutil.debug("creating transaction: " + self.string())
 
     def __str__(self) -> str:
@@ -50,11 +54,26 @@ class Transaction(object):
         """same as __hash__"""
         return hashutil.hash_string(self.string())
 
-    def sign(self, private_key: str):
-        raw_hash = self.hash()
-        self.v, self.r, self.s = sender.sign(raw_hash)
+    def get_sender_address(self) -> str:
+        """returns sender address"""
+        return self.sender_address
+
+    def unsigned_hash(self) -> str:
+        """creates an unsigned transaction and returns a hash of it"""
+        c = copy.copy(self)
+        c.signature = ""
+        return c.hash()
+
+    def sign(self, wallet: Wallet):
+        """
+        signes this transaction with a wallet
+        tx.sender_address must be equal to wallet.address(), 
+        otherwise a value Error is raised.
+        """
+        self.signature = wallet.sign_transaction(self)
 
 
-def get_hashes_list(transactions: List[Transaction]) -> List[str]:
-    """takes a list of Transaction objects and returns a list of HexString containing hash(tx) for each tx"""
-    return [tx.hash() for tx in transactions]
+def from_json_string(json_string: str) -> Transaction:
+    """generates a transaction-object from a json-string"""
+    _dict = json.loads(json_string)
+    print(_dict)

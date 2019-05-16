@@ -26,13 +26,13 @@ class Wallet(object):
             self.public_key = self.private_key.publickey()
             self.address = hashutil.hash_bytes(
                 self.public_key.exportKey(format="OpenSSH"))
+            self.nonce = 0
             # save the new wallet
-            wallet_database.save_wallet(
-                self.address, self.private_key, self.public_key)
+            self.save()
         else:
             # open existing wallet
             self.address = address
-            self.private_key, self.public_key = wallet_database.open_wallet(
+            self.private_key, self.public_key, self.nonce = wallet_database.open_wallet(
                 self.address)
 
     def __str__(self) -> str:
@@ -46,13 +46,39 @@ class Wallet(object):
             ret.update({f[0]: getattr(self, f[0])})
         return stringutil.dict_to_string(ret)
 
-    def get_address(self):
+    def get_address(self) -> str:
         return self.address
 
-    def sign(self, message: str) -> str:
+    def get_nonce(self) -> int:
+        return self.nonce
+
+    def sign_message(self, message: str) -> str:
         """sign a message with this wallet and return a strin of the signature"""
         digest = MD5.new(message.encode()).digest()
         return hex(self.private_key.sign(digest, 0)[0])[2:]
+
+    def sign_transaction(self, transaction) -> str:
+        """
+        signs a given transaction with this wallet.
+        if transaction.sender != self.address() a new value error is raised
+        returns signature hex-string and nonce for the tx
+        """
+        if not transaction.get_sender_address() == self.get_address():
+            raise ValueError("transaction (" + transaction.string() +
+                             ") cannot be signed with " + self.get_address())
+            loggerutil.error("transaction (" + transaction.string() +
+                             ") cannot be signed with " + self.get_address())
+        else:
+            # nonces are there to determine the order of transactions signed by this wallet.
+            # this prevents double spending
+            transaction.nonce = self.nonce
+            self.nonce += 1
+            # this can be spead up by just saving the nonce.
+            # TODO after prototype
+            self.save()
+
+            unsigned_hash = transaction.unsigned_hash()
+            return self.sign_message(unsigned_hash)
 
     def get_public_key(self):
         return self.public_key
@@ -60,6 +86,11 @@ class Wallet(object):
     def verify(self, signature: str, message: str) -> bool:
         """verify that a message was signed with this wallet"""
         return verify(self.public_key, signature, message)
+
+    def save(self):
+        """saves this wallet to local files"""
+        wallet_database.save_wallet(
+            self.address, self.private_key, self.public_key, self.nonce)
 
 
 def verify(public_key, signature: str, message: str) -> bool:

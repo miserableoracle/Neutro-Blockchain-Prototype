@@ -5,7 +5,7 @@ from src.chain.transaction import Transaction
 def test_trie():
     txs = []
     for i in range(10):
-        sender = None
+        sender = "a" + str(i)
         receivers = [str(i)]
         amounts = [str(i + 100)]
         nonce = i
@@ -17,7 +17,7 @@ def test_trie():
 
     assert trie.size() == 10
     trie_root = trie.root()
-    assert trie_root == "ad091a174423f37617c3abe27bb53dd13d8da5706308c16e2a40f59e9cdb11ee"
+    assert trie_root == "819208b7314e74647711cb43a22e518fea7d67541bd691ef7914a368883b43c6"
 
 
 def test_trie_empty():
