@@ -3,7 +3,7 @@
 
 ## This is a prototype under construction.
 
-For further details see neutro.io or the [Yellow Paper](https://drive.google.com/file/d/1yTnTxtpwDA5HZrLMRjH_KkWkynrM9F80/edit) or follow [Neutro on linkedin](https://www.linkedin.com/company/neutro/)
+For further details see [neutro.io](https://neutro.io) or the [Yellow Paper](https://drive.google.com/file/d/1yTnTxtpwDA5HZrLMRjH_KkWkynrM9F80/edit) or follow [Neutro on linkedin](https://www.linkedin.com/company/neutro/)
 
 ### Requirements:
 - ubuntu 18.04 LTS
