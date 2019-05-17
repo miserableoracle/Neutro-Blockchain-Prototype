@@ -8,4 +8,4 @@ empty_root = hashutil.hash_string("00")
 
 def dict_to_string(value: dict):
     """makes everythign human readable, also used for hashing stuff"""
-    return json.dumps(value)  # .replace("\"", "").replace("'", "").replace("\\", "")
+    return json.dumps(value)

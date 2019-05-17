@@ -2,7 +2,6 @@
 import os
 import shutil
 import ecdsa
-import binascii
 from pathlib import Path
 
 
