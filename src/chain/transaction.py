@@ -72,8 +72,11 @@ class Transaction(object):
         """
         self.signature = wallet.sign_transaction(self)
 
+    def get_signature(self) -> str:
+        """returns the signature for this transaction"""
+        return self.signature
+
 
 def from_json_string(json_string: str) -> Transaction:
     """generates a transaction-object from a json-string"""
     _dict = json.loads(json_string)
-    print(_dict)

@@ -13,7 +13,8 @@ def test_generate_wallet():
     w2 = Wallet(w1.get_address())
     # make sure these are the same
     assert w1.get_address() == w2.get_address()
-    assert w1.get_public_key() == w2.get_public_key()
+    assert w1.get_public_key().to_pem() == w2.get_public_key().to_pem()
+    assert w1.get_private_key().to_pem() == w2.get_private_key().to_pem()
 
     # remove the wallet
     wallet_database.remove_wallet(w1.get_address())
@@ -27,7 +28,6 @@ def test_wallet_sign():
     w = Wallet()
     # verify and sign a message with wallet
     assert w.verify(w.sign_message("abcde"), "abcde")
-    assert wallet.verify(w.get_public_key(), w.sign_message("abcde"), "abcde")
 
     wallet_database.remove_wallet(w.get_address())
 
@@ -41,7 +41,7 @@ def test_sign_transaction():
     public_key = w.get_public_key()
     signature = w.sign_transaction(t)
 
-    assert wallet.verify(public_key, signature, t.hash())
+    assert w.verify(signature, t.hash())
 
     wallet_database.remove_wallet(w.get_address())
 

@@ -1,12 +1,12 @@
 """class representing a Wallet and utils for this Wallet and Addresses"""
-from Crypto.PublicKey import RSA
-from Crypto.Hash import MD5
 import json
+import base58
+import ecdsa
+import binascii
 
 from src.util import loggerutil
 from src.util import hashutil
 from src.util import stringutil
-from src.util import cryptoutil
 from src.database import wallet_database
 
 
@@ -22,17 +22,17 @@ class Wallet(object):
         or takes an address and opens a wallet file for this address
         """
         if not address:
-            self.private_key = RSA.generate(1024)
-            self.public_key = self.private_key.publickey()
-            self.address = hashutil.hash_bytes(
-                self.public_key.exportKey(format="OpenSSH"))
+            self.private_key = ecdsa.SigningKey.generate(curve=ecdsa.SECP256k1)
+            self.public_key = self.private_key.get_verifying_key()
+            self.address = key_to_address(self.public_key)
             self.nonce = 0
             # save the new wallet
             self.save()
         else:
             # open existing wallet
             self.address = address
-            self.private_key, self.public_key, self.nonce = wallet_database.open_wallet(
+            self.public_key = address_to_key(address)
+            self.private_key, self.nonce = wallet_database.open_wallet(
                 self.address)
 
     def __str__(self) -> str:
@@ -54,8 +54,8 @@ class Wallet(object):
 
     def sign_message(self, message: str) -> str:
         """sign a message with this wallet and return a strin of the signature"""
-        digest = MD5.new(message.encode()).digest()
-        return hex(self.private_key.sign(digest, 0)[0])[2:]
+        return str(binascii.hexlify(
+            self.private_key.sign(message.encode("utf-8"))))[2:-1]
 
     def sign_transaction(self, transaction) -> str:
         """
@@ -83,18 +83,30 @@ class Wallet(object):
     def get_public_key(self):
         return self.public_key
 
+    def get_private_key(self):
+        return self.private_key
+
     def verify(self, signature: str, message: str) -> bool:
         """verify that a message was signed with this wallet"""
-        return verify(self.public_key, signature, message)
+        return self.public_key.verify(binascii.unhexlify(signature), message.encode("utf-8"))
 
     def save(self):
         """saves this wallet to local files"""
-        wallet_database.save_wallet(
-            self.address, self.private_key, self.public_key, self.nonce)
+        wallet_database.save_wallet(self.address, self.private_key, self.nonce)
 
 
-def verify(public_key, signature: str, message: str) -> bool:
-    """verify that a message was signed with the public_keys private_key"""
-    digest = MD5.new(message.encode()).digest()
-    sig_tuple = (int(signature, 16), )
-    return public_key.verify(digest, sig_tuple)
+def key_to_address(public_key: ecdsa.VerifyingKey) -> str:
+    """returns a b58 encoded version of the public_key"""
+    return str(base58.b58encode(public_key.to_string()))[2:-1]
+
+
+def address_to_key(address: str) -> ecdsa.VerifyingKey:
+    """returns a public key, decoded from the address"""
+    return ecdsa.VerifyingKey.from_string(bytes.fromhex(binascii.hexlify(
+        base58.b58decode(address)).decode('utf-8')), curve=ecdsa.SECP256k1)
+
+
+def verify_transaction_sig(transaction) -> bool:
+    """verifys that a given transaction is signed with senders private key"""
+    address = transactions.get_sender_address()
+    signature = transaction.get_signature()
