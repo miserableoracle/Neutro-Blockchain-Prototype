@@ -7,7 +7,8 @@ from pathlib import Path
 
 def save_wallet(address: str, private_key: ecdsa.SigningKey, nonce: int):
     """saving a newly generated key pair"""
-    key_path = str(Path(__file__).parent.parent.parent) + "/.keys/" + address
+    key_path = str(Path(__file__).parent.parent.parent) + \
+        "/.data/wallet/" + address
     Path(key_path).mkdir(parents=True, exist_ok=True)
     # save private key as bytes
     with open("{0}/private".format(key_path), "wb") as private_file:
@@ -22,7 +23,8 @@ def save_wallet(address: str, private_key: ecdsa.SigningKey, nonce: int):
 
 def open_wallet(address: str):
     """loading a previously generated wallet"""
-    key_path = str(Path(__file__).parent.parent.parent) + "/.keys/" + address
+    key_path = str(Path(__file__).parent.parent.parent) + \
+        "/.data/wallet/" + address
     if not os.path.isdir(key_path):
         raise ValueError("there is no wallet for address " +
                          address + " in local database")
@@ -39,5 +41,6 @@ def open_wallet(address: str):
 
 def remove_wallet(address: str):
     """removes a localy saved wallet"""
-    key_path = str(Path(__file__).parent.parent.parent) + "/.keys/" + address
+    key_path = str(Path(__file__).parent.parent.parent) + \
+        "/.data/wallet/" + address
     shutil.rmtree(key_path)

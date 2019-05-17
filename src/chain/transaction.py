@@ -3,9 +3,11 @@ import json
 import copy
 from typing import List
 from src.util import loggerutil
+from src.util import wallet
 from src.util.wallet import Wallet
 from src.util import hashutil
 from src.util import stringutil
+from src.util import cryptoutil
 
 
 class Transaction(object):
@@ -64,13 +66,11 @@ class Transaction(object):
         c.signature = ""
         return c.hash()
 
-    def sign(self, wallet: Wallet):
+    def verify(self)-> bool:
         """
-        signes this transaction with a wallet
-        tx.sender_address must be equal to wallet.address(), 
-        otherwise a value Error is raised.
+        verifies if this tx is signed by sender_address' private_key
         """
-        self.signature = wallet.sign_transaction(self)
+        return cryptoutil.verify_transaction_sig(self, self.signature)
 
     def get_signature(self) -> str:
         """returns the signature for this transaction"""
@@ -80,3 +80,12 @@ class Transaction(object):
 def from_json_string(json_string: str) -> Transaction:
     """generates a transaction-object from a json-string"""
     _dict = json.loads(json_string)
+    tx = Transaction(
+        sender=_dict["sender_address"],
+        receivers=_dict["receivers"],
+        amounts=_dict["amounts"],
+        nonce=_dict["nonce"],
+        fee=_dict["fee"],
+        signature=_dict["signature"]
+    )
+    return tx

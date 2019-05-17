@@ -6,7 +6,7 @@ import logging
 
 from pathlib import Path
 
-log_path = str(Path(__file__).parent.parent.parent) + "/log/"
+log_path = str(Path(__file__).parent.parent.parent) + "/.log/"
 Path(log_path).mkdir(parents=True, exist_ok=True)
 file_name = time.strftime("%Y-%m-%d", time.gmtime())
 string_format = "%(asctime)s [%(levelname)-7.7s][%(pathname)s %(funcName)s %(lineno)d]:\n%(message)s\n"

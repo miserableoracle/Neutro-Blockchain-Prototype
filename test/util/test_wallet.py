@@ -24,14 +24,6 @@ def test_generate_wallet():
         w3 = Wallet(w1.get_address())
 
 
-def test_wallet_sign():
-    w = Wallet()
-    # verify and sign a message with wallet
-    assert w.verify(w.sign_message("abcde"), "abcde")
-
-    wallet_database.remove_wallet(w.get_address())
-
-
 def test_sign_transaction():
     # test if transactions can be signed
     w = Wallet()
@@ -41,7 +33,7 @@ def test_sign_transaction():
     public_key = w.get_public_key()
     signature = w.sign_transaction(t)
 
-    assert w.verify(signature, t.hash())
+    assert t.verify()
 
     wallet_database.remove_wallet(w.get_address())
 
@@ -53,7 +45,7 @@ def test_sign_unvalid_tx():
         "01"], amounts=[1], nonce=1, fee=100)
 
     with pytest.raises(ValueError):
-        signature = w.sign_transaction(t)
+        w.sign_transaction(t)
 
     wallet_database.remove_wallet(w.get_address())
 
@@ -83,7 +75,10 @@ def test_nonce_in_tx_correct():
     tx_hash_old = ""
     tx_sig_old = ""
     for i in range(10):
-        signature = w.sign_transaction(t)
+        # sign tx
+        w.sign_transaction(t)
+        # get sig
+        signature = t.get_signature()
         # nonce gets bigger every signed tx
         assert t.nonce == w.get_nonce() - 1
         assert t.nonce == i
@@ -92,7 +87,7 @@ def test_nonce_in_tx_correct():
         # make sure tx_hash changes
         assert t.hash() != tx_hash_old
         # finally test if verify works
-        assert w.verify(signature, t.hash())
+        assert t.verify()
         # save values for next iteration
         tx_hash_old = t.hash()
         tx_sig_old = signature

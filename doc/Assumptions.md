@@ -8,6 +8,7 @@ Assumptions that needed to be made that the paper dose not state.
 	- Block and Tx Hashes are hashes of the JsonDict of the blocks
 
 - Transaction:
+	- a transaction is valid if the public_key generated from sender_address validates the unsigned_hash of the transaction against the transactions signature
 	- nonce is counted from 0 to n
 	- TODO: fee, is it in neutro? or in fractions/parts of neutro?
 
@@ -16,7 +17,7 @@ Assumptions that needed to be made that the paper dose not state.
 	- using ECDSA 
 
 - Address:
-	- using base58 of ECDSA pubKey as address
+	- using base58 of ECDSA public_key as address
 
 - pow:
 	- difficulty is in HexString format, a Block is valid if hash(Block) <= difficulty

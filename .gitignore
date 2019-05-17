@@ -1,6 +1,13 @@
+#ignore files created by python env
 __pycache__
-log
-.cache
 main.py
-.keys
+.cache
 .pytest_cache
+
+#ignoring files that are needed for runtime but not for installation
+.log
+*.log
+.data
+*.data
+*.block
+*.tx
