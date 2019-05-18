@@ -1,5 +1,6 @@
 from src.chain.block import Block
 from src.chain import block
+from src.database import block_database
 
 
 def test_block():
@@ -51,3 +52,19 @@ def test_block_from_json():
 
     assert b1.string() == b2.string()
     assert b1.hash() == b2.hash()
+
+
+def test_save_block():
+    """save a block to local storage and read it from there"""
+    prev_hash = "abc"
+    transactions = ["a", "b", "c", "d", "e", "f"]
+    miner = "afebc001"
+    difficulty = "000afx"
+    nonce = "1"
+
+    b1 = Block(prev_hash, transactions, miner,
+               difficulty, nonce)
+    b1.save()
+
+    b2 = block.from_json_string(
+        block_database.load_block_by_height(b1.get_height()))

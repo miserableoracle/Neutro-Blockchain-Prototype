@@ -19,9 +19,17 @@ def test_generate_wallet():
     # remove the wallet
     wallet_database.remove_wallet(w1.get_address())
 
-    # this should throw an execption
+
+def test_load_non_existent_wallet():
+    # test that only existent wallets can be loaded
     with pytest.raises(ValueError):
-        w3 = Wallet(w1.get_address())
+        w3 = Wallet("non_valid_address")
+
+
+def test_generate_wallet_wrong_argument():
+    # test that wallets can only be created with strings
+    with pytest.raises(ValueError):
+        w = Wallet(1)
 
 
 def test_sign_transaction():

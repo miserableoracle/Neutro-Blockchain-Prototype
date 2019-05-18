@@ -15,7 +15,7 @@ class Wallet(object):
     def __init__(self, address: str = None):
         """
         either generates a new wallet and saves it
-        or takes an address and opens a wallet file for this address
+        or takes an address and opens the wallet file for this address
         """
         if not address:
             self.private_key = cryptoutil.generate_key()
@@ -26,6 +26,10 @@ class Wallet(object):
             self.save()
         else:
             # open existing wallet
+            if not isinstance(address, str):
+                loggerutil.debug("could not open wallet with " +
+                                 str(address) + " as address")
+                raise ValueError("address needs to be string")
             self.address = address
             self.public_key = cryptoutil.address_to_key(address)
             self.private_key, self.nonce = wallet_database.open_wallet(
@@ -36,7 +40,7 @@ class Wallet(object):
         return self.string()
 
     def string(self) -> str:
-        """same as __str__"""
+        """returns a JsonString of itself"""
         ret = {}
         for f in self.fields:
             ret.update({f[0]: getattr(self, f[0])})
@@ -61,9 +65,13 @@ class Wallet(object):
         if transaction.get_sender_address() != self.get_address():
             raise ValueError(
                 "cannot sign transaction where tx.sender is different to this wallets address")
+            loggerutil.info("could not sign transaction " +
+                            transaction.string() + " with wallet " + self.string())
         transaction.nonce = self.nonce
         # update and save nonce
         self.nonce += 1
+        # TODO: this should be optimized to just save the nonce and not the
+        # whole wallet again.
         self.save()
         # set tx signature
         transaction.signature = cryptoutil.get_transaction_sig(

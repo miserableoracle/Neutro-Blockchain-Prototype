@@ -5,6 +5,7 @@ from src.util import loggerutil
 from src.util import hashutil
 from src.util import stringutil
 from src.trie.trie import Trie
+from src.database import block_database
 
 
 class Block(object):
@@ -61,6 +62,14 @@ class Block(object):
     def get_tx_root(self) -> str:
         """returns the tx_merkle_root of this block"""
         return self.tx_merkle_root
+
+    def get_heigth(self) -> int:
+        """returns the height of this block"""
+        return self.height
+
+    def save(self):
+        """saves this block to local database"""
+        block_database.save_block(self.height, self.string(), self.hash())
 
 
 def from_json_string(json_block: str) -> Block:

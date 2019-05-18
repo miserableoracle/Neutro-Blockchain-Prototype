@@ -2,6 +2,7 @@ from src.chain import transaction
 from src.chain.transaction import Transaction
 from src.util import cryptoutil
 from src.util.wallet import Wallet
+from src.database import wallet_database
 
 
 def test_transaction():
@@ -67,3 +68,5 @@ def test_verify_tx():
     t = Transaction(sender, receivers, amounts, nonce, fee)
     w.sign_transaction(t)
     assert cryptoutil.verify_transaction_sig(t, t.get_signature())
+
+    wallet_database.remove_wallet(w.get_address())
