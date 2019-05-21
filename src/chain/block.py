@@ -26,7 +26,10 @@ class Block(object):
         self.prev_hash = prev_hash
         self.transactions = transactions
         self.miner = miner
-        self.height = 0
+        try:
+            self.height = block_database.get_current_height() + 1
+        except:
+            self.height = 0
         self.difficulty = difficulty
         self.nonce = nonce
         self.reward = "00"

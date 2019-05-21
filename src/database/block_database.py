@@ -42,27 +42,46 @@ def load_block_by_height(height: int) -> str:
 def load_block_by_hash(block_hash: str) -> str:
     """loads the height/number of a block from the dicionary, returns load_block_by_height(said height)"""
     hash_path = str(Path(__file__).parent.parent.parent) + \
-        "/.data/blocks/hash.dicionary"
+        "/.data/blocks/hash.dictionary"
+    # open the block_hash database
     if not os.path.isfile(hash_path):
         loggerutil.error("could not load the block_hash database")
         raise ValueError("there is no block_hash database")
+    try:
+        with open(hash_path, "r") as hash_file:
+            for line in hash_file:
+                # read all lines and compare to block_hash
+                if line.split(":")[1].replace("\n", "") == block_hash:
+                    # if found return block for height
+                    return load_block_by_height(int(line.split(":")[0]))
+            loggerutil.error("could not load block with hash " + block_hash)
+            raise ValueError("there is no block with hash " +
+                             block_hash + " in block database")
+    except Exception as e:
+        loggerutil.error("error loading block_hash: " + str(e))
+        raise ValueError("error loading block_hash: " + str(e))
+
+
+def get_current_height() -> int:
+    hash_path = str(Path(__file__).parent.parent.parent) + \
+        "/.data/blocks/hash.dictionary"
     # open the block_hash database
-    with open(hash_path, "w") as hash_file:
-        for line in hash_file:
-            # read all lines and compare to block_hash
-            if line.split(":")[1] == block_hash:
-                # if found return block for height
-                return load_block_by_height(int(line.split(":")[0]))
-        loggerutil.error("could not load block with hash " + block_hash)
-        raise ValueError("there is no block with hash " +
-                         block_hash + " in block database")
+    if not os.path.isfile(hash_path):
+        return -1
+    try:
+        with open(hash_path, "r") as hash_file:
+            for line in hash_file:
+                last_line = line
+    except:
+        return -1
+    return int(last_line.split(":")[0])
 
 
-def remove_database(height: int):
+def remove_database():
     """
     removes all blocks, this is just for testing purpouses
     WARNING: use with care, it will delete the complete blockchain!! 
     """
     block_path = str(Path(__file__).parent.parent.parent) + \
         "/.data/blocks/"
-    shutil.rmtree(wallet_path)
+    shutil.rmtree(block_path)

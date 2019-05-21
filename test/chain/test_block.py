@@ -1,3 +1,5 @@
+import pytest
+
 from src.chain.block import Block
 from src.chain import block
 from src.database import block_database
@@ -54,17 +56,93 @@ def test_block_from_json():
     assert b1.hash() == b2.hash()
 
 
-def test_save_block():
+def test_save_load_block():
     """save a block to local storage and read it from there"""
     prev_hash = "abc"
     transactions = ["a", "b", "c", "d", "e", "f"]
     miner = "afebc001"
     difficulty = "000afx"
     nonce = "1"
+    try:
+        b1 = Block(prev_hash, transactions, miner,
+                   difficulty, nonce)
+        b1.save()
 
-    b1 = Block(prev_hash, transactions, miner,
-               difficulty, nonce)
-    b1.save()
+        b2 = block.from_json_string(
+            block_database.load_block_by_height(b1.get_heigth()))
 
-    b2 = block.from_json_string(
-        block_database.load_block_by_height(b1.get_height()))
+        b3 = block.from_json_string(
+            block_database.load_block_by_hash(b1.hash()))
+
+        assert b1.hash() == b2.hash()
+        assert b2.hash() == b3.hash()
+    finally:
+        # reset the database
+        block_database.remove_database()
+
+
+def test_block_height():
+    """tests that the height of the block is calculated correctly"""
+    prev_hash = "abc"
+    transactions = ["a", "b", "c", "d", "e", "f"]
+    miner = "afebc001"
+    difficulty = "000afx"
+    nonce = "1"
+    try:
+        b1 = Block(prev_hash, transactions, miner,
+                   difficulty, nonce)
+        b1.save()
+        assert b1.get_heigth() == 0
+        b2 = Block(prev_hash, transactions, miner,
+                   difficulty, nonce)
+        assert b2.get_heigth() == 1
+
+    finally:
+        # reset the database
+        block_database.remove_database()
+
+
+def test_save_multiple_blocks():
+    """save multiple blocks with different height"""
+    prev_hash = "abc"
+    transactions = ["a", "b", "c", "d", "e", "f"]
+    miner = "afebc001"
+    difficulty = "000afx"
+    nonce = "1"
+    try:
+        # save block 1
+        b1 = Block(prev_hash, transactions, miner,
+                   difficulty, nonce)
+        b1.save()
+        # save block 2
+        b2 = Block(prev_hash, transactions, miner,
+                   difficulty, nonce)
+        b2.save()
+
+        with pytest.raises(ValueError):
+            b2.height = 0
+            b2.save()
+    finally:
+        # reset the database
+        block_database.remove_database()
+
+
+def test_get_current_height():
+    """saves multiple blocks and tests that block_database.get_current_height() is correct"""
+    assert block_database.get_current_height() == -1
+
+    try:
+        for i in range(10):
+            prev_hash = "abc"
+            transactions = ["a", "b", "c", "d", "e", "f"]
+            miner = "afebc001"
+            difficulty = "000afx"
+            nonce = "1"
+            b1 = Block(prev_hash, transactions, miner,
+                       difficulty, nonce)
+            b1.height = i
+            b1.save()
+
+            assert block_database.get_current_height() == i
+    finally:
+        block_database.remove_database()
