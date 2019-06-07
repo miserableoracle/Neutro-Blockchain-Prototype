@@ -66,7 +66,8 @@ def test_save_load_block():
     try:
         b1 = Block(prev_hash, transactions, miner,
                    difficulty, nonce)
-        b1.save
+        b1.save()
+
         b2 = block.from_json_string(
             block_database.load_block_by_height(b1.get_heigth()))
 
