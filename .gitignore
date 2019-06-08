@@ -1,8 +1,12 @@
-#ignore files created by python env
+#ignore files created by python env or pip install
 __pycache__
 main.py
 .cache
 .pytest_cache
+.coverage
+*.egg-info
+build
+dist
 
 #ignoring files that are needed for runtime but not for installation
 .log

@@ -56,13 +56,13 @@ def test_pow_interrupt():
 
     # assert that the thread is still running
     assert p.isAlive()
-    time.sleep(100 / 1000)
-    # assert that the thread hasen't stoped after w8ing
-    assert p.isAlive()
+    assert not p.isInterrupted()
 
+    # stop  the thread and expect a warning that mining was not finished
     with pytest.raises(Exception):
         p.interrupt()
 
+    assert p.isInterrupted()
     # w8 100 ms (10 should be sufficciant, but we want to be sure)
     # for the thread to stop (should be enough)
     # normally one would use p.join(), but the test ensures that it dosent
