@@ -1,4 +1,5 @@
 """class representing a block"""
+import time
 import json
 from typing import List
 from src.util import loggerutil
@@ -19,7 +20,8 @@ class Block(object):
         ("difficulty", str),
         ("reward", str),
         ("nonce", str),
-        ("tx_count", int)
+        ("tx_count", int),
+        ("time", int)
     ]
 
     def __init__(self, prev_hash: str, transactions: List[str], miner: str, difficulty: str, nonce: str):
@@ -41,6 +43,8 @@ class Block(object):
             trie = Trie(transactions)
             self.tx_count = trie.size()
             self.tx_merkle_root = trie.root()
+        self.time = int(time.time() * 1000.0)
+
         loggerutil.debug("created block: " + self.string())
 
     def __str__(self) -> str:
@@ -86,4 +90,5 @@ def from_json_string(json_block: str) -> Block:
         nonce=_dict["nonce"]
     )
     block.height = int(_dict["height"])
+    block.time = _dict["time"]
     return block

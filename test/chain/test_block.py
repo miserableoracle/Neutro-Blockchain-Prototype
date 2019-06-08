@@ -1,7 +1,7 @@
 import pytest
 
-from src.chain.block import Block
 from src.chain import block
+from src.chain.block import Block
 from src.database import block_database
 
 
@@ -15,9 +15,10 @@ def test_block():
 
     b = Block(prev_hash, transactions, miner,
               difficulty, nonce)
+    b.time = 0
 
     block_hash = b.hash()
-    assert block_hash == "077e083970f9200d378c52caca06d7171238b7fb7dcf13f1e3d2364daba83ce2"
+    assert block_hash == "af51c2a176fdda2f5d00d4a7aa8a194a7d3bc3caa6beafd9a207727d7cdfc241"
 
 
 def test_block_no_tx():
@@ -35,6 +36,7 @@ def test_block_no_tx():
     transactions = None
     b2 = Block(prev_hash, transactions, miner,
                difficulty, nonce)
+    b2.time = b1.time
 
     assert b1.string() == b2.string()
     assert b1.hash() == b2.hash()

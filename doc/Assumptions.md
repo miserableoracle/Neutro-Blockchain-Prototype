@@ -21,7 +21,7 @@ Assumptions that needed to be made that the paper dose not state.
 
 - pow:
 	- difficulty is in HexString format, a Block is valid if hash(Block) <= difficulty
-
+	- nonces used for mining are also hexString of length 8 byte (16 hex values)
 
 - database:
 	- everything is stored in /repo_root/.data/
