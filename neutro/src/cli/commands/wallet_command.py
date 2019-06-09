@@ -16,6 +16,7 @@ class WalletCommand(Base):
             wallet_database.save_wallet(wallet.generate_new_wallet())
             print("generated wallet with address:" +
                   wallet_database.get_address())
+            # todo save old wallet in temp or sth
         elif self.options["get_address"]:
             print(wallet_database.get_address())
         elif self.options["get_nonce"]:

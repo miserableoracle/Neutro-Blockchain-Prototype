@@ -17,7 +17,7 @@ logging.basicConfig(
     format=string_format,
     handlers=[
         logging.FileHandler("{0}/{1}.log".format(log_path, file_name)),
-        logging.StreamHandler()
+        # logging.StreamHandler()
     ])
 
 

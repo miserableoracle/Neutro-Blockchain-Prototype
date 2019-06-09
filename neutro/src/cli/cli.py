@@ -13,6 +13,7 @@ Usage:
     neutro client start
     neutro client stop
     neutro client add_peer <peer_address>
+    neutro block generate_genesis
     neutro block get_by_hash
     neutro block get_by_no
     neutro transaction get <hash>
@@ -28,7 +29,7 @@ import os
 from pathlib import Path
 from docopt import docopt
 from inspect import getmembers, isclass
-from neutro.src.client import __version__ as VERSION
+from neutro import __version__ as VERSION
 from neutro.src.util import loggerutil
 
 from neutro.src.client.commands.test_command import TestCommand
