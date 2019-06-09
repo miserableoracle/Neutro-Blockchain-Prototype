@@ -19,7 +19,7 @@ Usage:
     neutro transaction get <hash>
     neutro transaction publish <json_string>
     neutro transaction verify <json_string>
-    neutro transaction sign <json_string> [<path_to_key_file>]
+    neutro transaction sign <json_string> [<path_to_wallet>]
 
 Options:
     -h --help
@@ -32,11 +32,11 @@ from inspect import getmembers, isclass
 from neutro import __version__ as VERSION
 from neutro.src.util import loggerutil
 
-from neutro.src.client.commands.test_command import TestCommand
-from neutro.src.client.commands.wallet_command import WalletCommand
-from neutro.src.client.commands.block_command import BlockCommand
-from neutro.src.client.commands.transaction_command import TransactionCommand
-from neutro.src.client.commands.client_command import ClientCommand
+from neutro.src.cli.commands.test_command import TestCommand
+from neutro.src.cli.commands.wallet_command import WalletCommand
+from neutro.src.cli.commands.block_command import BlockCommand
+from neutro.src.cli.commands.transaction_command import TransactionCommand
+from neutro.src.cli.commands.client_command import ClientCommand
 
 # make sure the interpreter finds all the packages
 project_root = str(Path(__file__).parent.parent.parent)

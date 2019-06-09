@@ -24,3 +24,12 @@ def test_get_nonce():
     w = wallet.generate_new_wallet()
     wallet_database.save_wallet(w)
     assert w.get_nonce() == wallet_database.get_nonce()
+
+
+def test_save_nonce():
+    w = wallet.generate_new_wallet()
+    wallet_database.save_wallet(w)
+    assert wallet_database.load_wallet().get_nonce() == 0
+    wallet_database.save_nonce(10)
+    assert wallet_database.load_wallet().get_nonce() == 10
+    assert wallet_database.get_nonce() == 10

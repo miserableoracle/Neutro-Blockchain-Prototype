@@ -1,4 +1,4 @@
-from neutro.src.client.commands.base import Base
+from neutro.src.cli.commands.base import Base
 
 
 class BlockCommand(Base):

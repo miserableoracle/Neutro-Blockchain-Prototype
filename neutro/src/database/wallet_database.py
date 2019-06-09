@@ -50,7 +50,7 @@ def save_nonce(nonce: int):
         raise ValueError(msg)
     # save nonce
     with open("{0}/nonce".format(wallet_path), "w") as nonce_file:
-        print("{}".format(wallet.get_nonce()), file=nonce_file)
+        print("{}".format(nonce), file=nonce_file)
 
 
 def get_nonce() -> int:
