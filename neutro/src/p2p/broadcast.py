@@ -10,11 +10,15 @@ from atomic_p2p.utils.security import self_hash as sh, create_self_signed_cert
 from atomic_p2p.peer import Peer
 
 from neutro.src.p2p.p2p_transaction import test_transaction
+from neutro.src.p2p.p2p_block import test_block
 from neutro.src.p2p.peer_database import store_neighbors
 from neutro.src.p2p.peer_database import get_neighbors
+from typing import List
 
 
 json_string_transaction = test_transaction()
+json_string_block = test_block()
+
 self_hash = sh(join(os.getcwd(), 'atomic_p2p'))
 
 # Peers must have the same certificate
@@ -38,7 +42,7 @@ def net(cert, self_hash, nodes):
     # wait for all threads to complete the join process
     time.sleep(10)
 
-    def direct_nodes_of(node_a_hostname):
+    def direct_nodes_of(node_a_hostname: str) -> List[str]:
         # returns and stores a list of hosts directly connected to a given node
         node_a = nodes[node_a_hostname].connectlist
         node_a = list(node_a)
@@ -58,7 +62,7 @@ def net(cert, self_hash, nodes):
 
     direct_nodes_of(nodes['core_1'].server_info.name)
 
-    def indirect_nodes_of(node_a_hostname):
+    def indirect_nodes_of(node_a_hostname: str):
         # returns and stores a list of hosts indirectly connected to a given node
 
         # gets the neighbors of core node
@@ -67,13 +71,19 @@ def net(cert, self_hash, nodes):
             # gets the of all the direct neighbors of core
             direct_nodes_of(nodes[nds].server_info.name)
 
-            # sends a broadcast message from a node to other directly connected nodes except the core node
+            # sends a broadcast transaction message from a node to other directly connected nodes except the core node
             nodes[nds].onProcess(['send', 'broadcast:sw', json_string_transaction])
+
+            # send a broadcast block message from core to other directly connected nodes except the core node
+            nodes[nds].onProcess(['send', 'broadcast:sw', json_string_block])
 
     indirect_nodes_of(nodes['core_1'].server_info.name)
 
-    # send a broadcast message from core to all the directly connected nodes
+    # send a broadcast transaction message from core to all the directly connected nodes
     nodes['core_1'].onProcess(['send', 'broadcast:sw', json_string_transaction])
+
+    # send a broadcast block message from core to all the directly connected nodes
+    nodes['core_1'].onProcess(['send', 'broadcast:sw', json_string_block])
 
     time.sleep(10)
 

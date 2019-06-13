@@ -17,3 +17,4 @@ def test_transaction():
 
 def send_transaction(tx_string: str):
     return tx_string
+
