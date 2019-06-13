@@ -30,11 +30,13 @@ def net(cert, self_hash, nodes):
 
     nodes['switch_1'].onProcess(['join', '127.0.0.1:{}'.format(nodes['core_1'].server_info.host[1])])
     nodes['switch_2'].onProcess(['join', '127.0.0.1:{}'.format(nodes['core_1'].server_info.host[1])])
-    nodes['switch_3'].onProcess(['join', '127.0.0.1:{}'.format(nodes['switch_2'].server_info.host[1])])
+    nodes['switch_3'].onProcess(['join', '127.0.0.1:{}'.format(nodes['core_1'].server_info.host[1])])
     nodes['switch_4'].onProcess(['join', '127.0.0.1:{}'.format(nodes['core_1'].server_info.host[1])])
+    nodes['switch_5'].onProcess(['join', '127.0.0.1:{}'.format(nodes['switch_4'].server_info.host[1])])
+    nodes['switch_6'].onProcess(['join', '127.0.0.1:{}'.format(nodes['switch_4'].server_info.host[1])])
 
     # wait for all threads to complete the join process
-    time.sleep(5)
+    time.sleep(10)
 
     def direct_nodes_of(node_a_hostname):
         # returns and stores a list of hosts directly connected to a given node
@@ -58,16 +60,22 @@ def net(cert, self_hash, nodes):
 
     def indirect_nodes_of(node_a_hostname):
         # returns and stores a list of hosts indirectly connected to a given node
+
+        # gets the neighbors of core node
         values = get_neighbors(nodes[node_a_hostname].server_info.name)
         for nds in values:
+            # gets the of all the direct neighbors of core
             direct_nodes_of(nodes[nds].server_info.name)
+
+            # sends a broadcast message from a node to other directly connected nodes except the core node
+            nodes[nds].onProcess(['send', 'broadcast:sw', json_string_transaction])
 
     indirect_nodes_of(nodes['core_1'].server_info.name)
 
     # send a broadcast message from core to all the directly connected nodes
     nodes['core_1'].onProcess(['send', 'broadcast:sw', json_string_transaction])
 
-    time.sleep(12)
+    time.sleep(10)
 
     # stop all the peer threads
     for (_, val) in nodes.items():
@@ -83,5 +91,7 @@ node['switch_1'] = Peer(role='sw', name='switch_1', host=('127.0.0.1', 8011), ce
 node['switch_2'] = Peer(role='sw', name='switch_2', host=('127.0.0.1', 8012), cert=cert, _hash=self_hash)
 node['switch_3'] = Peer(role='sw', name='switch_3', host=('127.0.0.1', 8013), cert=cert, _hash=self_hash)
 node['switch_4'] = Peer(role='sw', name='switch_4', host=('127.0.0.1', 8014), cert=cert, _hash=self_hash)
+node['switch_5'] = Peer(role='sw', name='switch_5', host=('127.0.0.1', 8015), cert=cert, _hash=self_hash)
+node['switch_6'] = Peer(role='sw', name='switch_6', host=('127.0.0.1', 8016), cert=cert, _hash=self_hash)
 
 net(cert, self_hash, node)
