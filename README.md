@@ -11,6 +11,8 @@ For further details see [neutro.io](https://neutro.io) or the [Yellow Paper](htt
 - python3-pip libraries:
 	- [base58](https://pypi.org/project/base58/)
 	- [ecdsa](https://pypi.org/project/ecdsa/)
+- AtomicP2P library
+	- [AtomicP2P](https://pypi.org/project/AtomicP2P/)
 
 ### Installation:
 - clone this repository
