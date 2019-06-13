@@ -8,7 +8,7 @@ socket.SO_REUSEPORT = 15
 from atomic_p2p.utils.security import self_hash as sh, create_self_signed_cert
 from atomic_p2p.peer import Peer
 
-from src.p2p.p2p_transaction import test_transaction
+from neutro.src.p2p.p2p_transaction import test_transaction
 
 json_string_transaction = test_transaction()
 self_hash = sh(join(os.getcwd(), 'atomic_p2p'))

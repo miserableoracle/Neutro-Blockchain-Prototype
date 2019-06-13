@@ -1,6 +1,6 @@
 from pathlib import Path
 from typing import List
-
+import ast
 
 def store_neighbors(peer_name: str, peer_neighbors: List[str]):
     """stores a peer with its respective list of neighbors"""
@@ -17,4 +17,5 @@ def get_neighbors(peer_name: str):
     neighbors_path = str(Path(__file__).parent.parent.parent) + \
                      "/.data/neighbors/"
     with open("{0}/{1}".format(neighbors_path, peer_name), "r") as neighbors_file:
-        return neighbors_file.read()
+        return ast.literal_eval(neighbors_file.read())
+
