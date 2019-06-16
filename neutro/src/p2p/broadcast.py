@@ -9,15 +9,15 @@ import re
 from atomic_p2p.utils.security import self_hash as sh, create_self_signed_cert
 from atomic_p2p.peer import Peer
 
-from neutro.src.p2p.p2p_transaction import test_transaction
-from neutro.src.p2p.p2p_block import test_block
+from neutro.src.p2p.p2p_api import send_transaction_broadcast
+from neutro.src.p2p.p2p_block import send_block_broadcast
 from neutro.src.p2p.peer_database import store_neighbors
 from neutro.src.p2p.peer_database import get_neighbors
 from typing import List
 
 
-json_string_transaction = test_transaction()
-json_string_block = test_block()
+json_string_transaction = send_transaction_broadcast()
+json_string_block = send_block_broadcast()
 
 self_hash = sh(join(os.getcwd(), 'atomic_p2p'))
 
