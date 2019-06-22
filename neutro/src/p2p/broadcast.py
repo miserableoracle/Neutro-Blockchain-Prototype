@@ -9,15 +9,19 @@ import re
 from atomic_p2p.utils.security import self_hash as sh, create_self_signed_cert
 from atomic_p2p.peer import Peer
 
-from neutro.src.p2p.p2p_api import send_transaction_broadcast
-from neutro.src.p2p.p2p_block import send_block_broadcast
+from neutro.src.p2p.p2p_api import *
 from neutro.src.p2p.peer_database import store_neighbors
 from neutro.src.p2p.peer_database import get_neighbors
 from typing import List
+from neutro.src.p2p.p2p_block import test_block
+from neutro.src.p2p.p2p_transaction import test_transaction
+import threading
 
 
-json_string_transaction = send_transaction_broadcast()
-json_string_block = send_block_broadcast()
+json_string_transaction = send_transaction_broadcast(test_transaction())
+json_string_block = send_block_broadcast(test_block())
+list_of_blocks = send_bootstrap()
+# print(*list_of_blocks, sep='\n')
 
 self_hash = sh(join(os.getcwd(), 'atomic_p2p'))
 
@@ -31,7 +35,7 @@ def net(cert, self_hash, nodes):
     # start all the peer threads
     for (_, val) in nodes.items():
         val.start()
-
+    
     nodes['switch_1'].onProcess(['join', '127.0.0.1:{}'.format(nodes['core_1'].server_info.host[1])])
     nodes['switch_2'].onProcess(['join', '127.0.0.1:{}'.format(nodes['core_1'].server_info.host[1])])
     nodes['switch_3'].onProcess(['join', '127.0.0.1:{}'.format(nodes['core_1'].server_info.host[1])])
@@ -73,6 +77,7 @@ def net(cert, self_hash, nodes):
 
             # sends a broadcast transaction message from a node to other directly connected nodes except the core node
             nodes[nds].onProcess(['send', 'broadcast:sw', json_string_transaction])
+            nodes[nds].onProcess(['send', 'broadcast:sw', list_of_blocks])
 
             # send a broadcast block message from core to other directly connected nodes except the core node
             nodes[nds].onProcess(['send', 'broadcast:sw', json_string_block])
