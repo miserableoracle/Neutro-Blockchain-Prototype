@@ -2,8 +2,8 @@ from neutro.src.p2p.p2p_api import send_transaction_direct
 from neutro.src.p2p.p2p_api import send_block_direct
 import time
 
-import socket
-socket.SO_REUSEPORT = 15
+#import socket
+#socket.SO_REUSEPORT = 15
 
 
 def direct_messaging_tx():

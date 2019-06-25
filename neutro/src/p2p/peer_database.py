@@ -2,6 +2,7 @@ from pathlib import Path
 from typing import List
 import ast
 
+
 def store_neighbors(peer_name: str, peer_neighbors: List[str]):
     """stores a peer with its respective list of neighbors"""
     neighbors_path = str(Path(__file__).parent.parent.parent) + \
