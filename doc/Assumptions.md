@@ -12,9 +12,19 @@ Assumptions that needed to be made that the paper dose not state.
 	- nonce is counted from 0 to n
 	- TODO: fee (is it in neutro? or in fractions/parts of neutro?)
 
+- Transaction Nonces
+	-the next nonce is strictly bound to last deployed transaction. So if my transaction is not in a block I cannot publish another one
+
 - Wallet:
 	- nonce is counted from 0 to n
 	- using ECDSA 
+
+- Neutro Consensus:
+	-validation token transactions are only main chain
+	-voting client behaviour:
+		-just for the prototype "first block I see, I vote for"	
+	-there is a fixed amount of voting tokens: 
+
 
 - Address:
 	- using base58 of ECDSA public_key as address
@@ -22,9 +32,19 @@ Assumptions that needed to be made that the paper dose not state.
 - pow:
 	- difficulty is in HexString format, a Block is valid if hash(Block) <= difficulty
 	- nonces used for mining are also hexString of length 8 byte (16 hex values)
+		-this gives a range of 2^(64) possible blocks with the exact same configuration
 
 - database:
 	- everything is stored in /repo_root/.data/
 		- wallets are stored as /wallet/address, /wallet/private, /wallet/nonce
 		- blocks are stored as /blocks/{block_height}.block
 		- block_hash(es) are linked to block_height in /blocks/hash.dictionary
+
+
+Possible Optimisations:
+	-database
+		-rework to use something like mongodb
+	-make client smarter
+		-start mining wehn not all shards are there (because 2/3 +1 shards are a valid block)
+	-rework consensus so that there is no downtime for tx throuput while mining main block
+	-adding more votes to a single broadcast package
