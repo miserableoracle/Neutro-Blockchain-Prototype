@@ -37,7 +37,8 @@ def stop_peer_thread(peer):
 
 def join_peers(peer_a: Peer, peer_b: Peer):
     # Sends a join request from peer_a to peer_b
-    peer_a.onProcess(['join', '{}:{}'.format(peer_b.server_info.host[0], peer_b.server_info.host[1])])
+    peer_a.onProcess(['join', '{}:{}'.format(
+        peer_b.server_info.host[0], peer_b.server_info.host[1])])
 
 
 def list_peers_in_net(core: Peer) -> Dict[Tuple[str, int], PeerInfo]:
@@ -63,13 +64,15 @@ def send_broadcast(nodes, from_node, json_transaction_message: str):
                 found = m.group(1)
                 direct_nodes_of_a.append(found)
 
-        store_neighbors(nodes[node_a_hostname].server_info.name, direct_nodes_of_a)
+        store_neighbors(
+            nodes[node_a_hostname].server_info.name, direct_nodes_of_a)
         return direct_nodes_of_a
 
     direct_nodes_of(from_node.server_info.name)
 
     def indirect_nodes_of(node_a_hostname: str):
-        # returns and stores a list of hosts indirectly connected to a given node
+        # returns and stores a list of hosts indirectly connected to a given
+        # node
 
         # gets the neighbors of core node
         values = get_neighbors(nodes[node_a_hostname].server_info.name)
@@ -77,12 +80,15 @@ def send_broadcast(nodes, from_node, json_transaction_message: str):
             # gets the of all the direct neighbors of core
             direct_nodes_of(nodes[nds].server_info.name)
 
-            # sends a broadcast transaction message from a node to other directly connected nodes except the core node
-            nodes[nds].onProcess(['send', 'broadcast:sw', json_transaction_message])
+            # sends a broadcast transaction message from a node to other
+            # directly connected nodes except the core node
+            nodes[nds].onProcess(
+                ['send', 'broadcast:sw', json_transaction_message])
 
     indirect_nodes_of(from_node.server_info.name)
 
-    # send a broadcast transaction message from core to all the directly connected nodes
+    # send a broadcast transaction message from core to all the directly
+    # connected nodes
     from_node.onProcess(['send', 'broadcast:sw', json_transaction_message])
 
 
@@ -98,7 +104,6 @@ def send_block_direct(json_block_string: str, from_peer, to_peer):
                          json_block_string])
 
 
-def send_bootstrap(min:int, max:int, blocks: List[str]):
+def send_bootstrap(min: int, max: int, blocks: List[str]):
     # sends a set of blocks (min to max) for broadcasting
     return blocks
-

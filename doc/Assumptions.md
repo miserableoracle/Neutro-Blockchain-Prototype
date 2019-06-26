@@ -25,6 +25,8 @@ Assumptions that needed to be made that the paper dose not state.
 		-just for the prototype "first block I see, I vote for"	
 	-there is a fixed amount of voting tokens: 
 
+- Shard Blocks:
+	-they also contain a "previous_hash" field, so that finding the main block of a shard is just going to previous_block_number + 1.
 
 - Address:
 	- using base58 of ECDSA public_key as address
@@ -33,6 +35,7 @@ Assumptions that needed to be made that the paper dose not state.
 	- difficulty is in HexString format, a Block is valid if hash(Block) <= difficulty
 	- nonces used for mining are also hexString of length 8 byte (16 hex values)
 		-this gives a range of 2^(64) possible blocks with the exact same configuration
+	-difficulty adjustment needs to be synchronized, so there should be one point in time each day/week/lunar/month where all nodes reach consensus on the new difficulty
 
 - database:
 	- everything is stored in /repo_root/.data/

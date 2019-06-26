@@ -30,10 +30,6 @@ class Trie(object):
         """returns a JsonString of itself"""
         return self.string()
 
-    def __hash__(self) -> str:
-        """returns a HexString of hash(self.__str__())"""
-        return self.hash()
-
     def string(self) -> str:
         """same as __str__"""
         ret = {}
@@ -42,7 +38,7 @@ class Trie(object):
         return stringutil.dict_to_string(ret).replace("_size", "size")
 
     def hash(self) -> str:
-        """same as __hash__"""
+        """not the same as __hash__"""
         return hashutil.hash_string(self.string())
 
     def root(self) -> str:
