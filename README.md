@@ -5,6 +5,8 @@
 
 For further details see [neutro.io](https://neutro.io) or the [Yellow Paper](https://drive.google.com/file/d/1yTnTxtpwDA5HZrLMRjH_KkWkynrM9F80/edit) or follow [Neutro on linkedin](https://www.linkedin.com/company/neutro/)
 
+![neutro logo](docs/assets/logo/neutro-sq-logo-white.png)
+
 ### Requirements:
 - ubuntu 18.04 LTS
 - python3.6
