@@ -42,33 +42,15 @@ class Client(threading.Thread):
         p2p_api.connect(self.peer)
         loggerutil.debug("client connected")
 
-        # blocking call, returns the latest block number
-        current_height = p2p_api.get_current_height()
-        my_current_heigth = block_database.get_current_height()
-        if current_height > my_current_heigth:
-            # blocking call, returns a list of blocks from x to y (my heigth,
-            # network height)
-            bootstrap = p2p_api.get_bootstrap(
-                my_current_heigth, current_height)
-            for block in bootstrap:
-                if not self.validate_block(block):
-                    loggerutil.error("published block: " +
-                                     block + " is not valid. Exiting!")
-                    return
-                block_database.save_block()
-        elif current_height < my_current_heigth:
-            loggerutil.error(
-                "local chain is longer than network chain at startup, this should never happen!!")
+        # not blocking call because 2 peers could have different versions of
+        # the chain
+        p2p_api.update_chain(wallet_database.get_current_height())
 
-        # blocking call, returns the current tx pool as a list of transactions
-        tx_pool_list = p2p_api.get_tx_pool()
-        for tx in tx_pool_list:
-            if not self.validate_tx(tx):
-                loggerutil.error("pooled tx: " + tx +
-                                 " is not valid. Exiting!")
-            self.pool.add_transaction(tx)
+        # not blocking call because 2 peers could have different versions of
+        # the pool
+        p2p_api.update_tx_pool()
 
-        loggerutil.debug("client synched")
+        loggerutil.debug("client init update")
 
         self.loop()
 
@@ -99,23 +81,66 @@ class Client(threading.Thread):
 
         returns a bool that is only True if the client needs to be shut down in case of an error
         """
+        # get data from the p2p
         if self.event_manager.block_received.isSet():
-            pass
-        elif self.event_manager.tx_received.isSet():
-            pass
-        elif self.event_manager.height_request.isSet():
-            pass
-        elif self.event_manager.block_request.isSet():
-            pass
-        elif self.event_manager.tx_request.isSet():
-            pass
-        elif self.event_manager.tx_pool_request.isSet():
-            pass
-        elif self.event_manager.bootstr_request.isSet():
-            pass
-        elif self.event_manager.error.isSet():
-            pass
-        elif self.event_manager.connection_lost.isSet():
-            pass
-        else
-            return False
+            block = p2p_api.get_recv_block()
+            # do stuff
+            self.event_manager.block_received.clear()
+
+        if self.event_manager.tx_received.isSet():
+            tx = p2p_api.get_recv_tx()
+            # do stuff
+            self.event_manager.tx_received.clear()
+
+        if self.event_manager.tx_pool_received.isSet():
+            tx_pool = p2p_api.get_recv_tx_pool()
+            # do stuff
+            self.event_manager.tx_pool_received.clear()
+
+        if self.event_manager.bootstr_received.isSet():
+            bootstr = p2p_api.get_recv_bootstr()
+            # do stuff
+            self.event_manager.bootstr_received.clear()
+
+        # give data to the p2p
+        if self.event_manager.height_request.isSet():
+            p2p_api.send_height(my_height)
+            # do stuff
+            self.event_manager.height_request.clear()
+
+        if self.event_manager.block_request.isSet():
+            # returns list of block numbers
+            number_list = p2p_api.get_requ_block_numbers()
+            for number in number_list:
+                p2p_api.send_block(number, the_block_to_number)
+            # do stuff
+            self.event_manager.block_request.clear()
+
+        if self.event_manager.tx_request.isSet():
+            # do stuff
+            self.event_manager.tx_request.clear()
+
+        if self.event_manager.tx_pool_request.isSet():
+            p2p_api.send_pool(self.pool.string())
+            self.event_manager.tx_pool_request.clear()
+
+        if self.event_manager.bootstr_request.isSet():
+            from_block_number, to_block_number, reciever = p2p_api.get_requ_bootstr_numbers()
+            temp = []
+            # fill temp with the blocks from and to
+            p2p_api.send_bootstr(reciever, temp)
+            # do stuff
+            self.event_manager.bootstr_request.clear()
+
+        if self.event_manager.connection_lost.isSet():
+            # reconnect maybe ?
+            # do stuff
+            self.event_manager.connection_lost.clear()
+
+        if self.event_manager.error.isSet():
+            loggerutil.error(p2p_api.get_error_message())
+            # shut down the client after logging the error
+            p2p_api.stop_peer(self.peer)
+            return True
+
+        return False
