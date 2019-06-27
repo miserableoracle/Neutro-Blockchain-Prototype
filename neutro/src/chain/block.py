@@ -51,9 +51,9 @@ class Block(object):
         """returns a JsonString of itself"""
         return self.string()
 
-    def __hash__(self) -> str:
-        """returns a HexString of hash(self.__str__())"""
-        return self.hash()
+    def __hash__(self) -> int:
+        """returns an int as hash of this object"""
+        return int(self.hash(), 16)
 
     def string(self) -> str:
         """same as __str__"""
@@ -63,7 +63,7 @@ class Block(object):
         return stringutil.dict_to_string(ret)
 
     def hash(self) -> str:
-        """same as __hash__"""
+        """not the same as __hash__"""
         return hashutil.hash_string(self.string())
 
     def get_tx_root(self) -> str:
