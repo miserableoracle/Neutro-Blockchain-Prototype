@@ -28,7 +28,7 @@ setup(
     ],
     keywords='Blockchain, Cryptocurrency, Neutro, NTO, Spacesoft LLC',
     packages=find_packages(exclude=['doc', 'tests*']),
-    install_requires=['docopt', 'web3', 'base58', 'AtomicP2P'],
+    install_requires=['docopt', 'base58', 'ecdsa', 'AtomicP2P'],
     extras_require={
         'test': ['coverage', 'pytest', 'pytest-cov'],
     },
