@@ -43,6 +43,9 @@ def get_transaction_sig(private_key: ecdsa.SigningKey, transaction) -> str:
     return sign_message(private_key, transaction.unsigned_hash())
 
 
-def verify_transaction_sig(transaction, signature: str) -> bool:
+def verify_transaction_sig(transaction, signature: str, address="") -> bool:
     """verifys that a given transaction is signed with senders private key"""
-    return verify_message(address_to_key(transaction.get_sender_address()), transaction.unsigned_hash(), signature)
+    if(address == ""):
+        return verify_message(address_to_key(transaction.get_sender_address()), transaction.unsigned_hash(), signature)
+    else:
+        return verify_message(address_to_key(address), transaction.unsigned_hash(), signature)

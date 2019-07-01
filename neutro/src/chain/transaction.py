@@ -1,4 +1,4 @@
-"""transaction"""
+"""class representing a transaction"""
 import json
 import copy
 from typing import List
@@ -21,15 +21,8 @@ class Transaction(object):
         ("signature", str)
     ]
 
-    def __init__(self, sender, receivers: List[str], amounts: List[int], nonce: int, fee: int, signature: str=""):
-        # is sender wallet or string
-        if isinstance(sender, Wallet):
-            self.sender = sender
-            self.sender_address = self.sender.address()
-        elif isinstance(sender, str):
-            self.sender_address = sender
-        else:
-            raise ValueError("sender must be Wallet or string")
+    def __init__(self, sender: str, receivers: List[str], amounts: List[int], nonce: int, fee: int, signature: str=""):
+        self.sender_address = sender
         self.receivers = receivers
         self.amounts = amounts
         self.nonce = nonce
@@ -70,7 +63,10 @@ class Transaction(object):
         """
         verifies if this tx is signed by sender_address' private_key
         """
-        return cryptoutil.verify_transaction_sig(self, self.signature)
+        try:
+            return cryptoutil.verify_transaction_sig(self, self.signature)
+        except AssertionError:
+            return False
 
     def get_signature(self) -> str:
         """returns the signature for this transaction"""
