@@ -61,7 +61,7 @@ class Client(threading.Thread):
                 loggerutil.debug("shutting down client")
                 break
             if self.manage_events():
-                loggerutil.debug("shuttind down client due to an error")
+                loggerutil.debug("shutting down client due to an error")
                 break
 
             # start of the pow
