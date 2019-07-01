@@ -2,6 +2,7 @@ import socket
 socket.SO_REUSEPORT = 15
 
 
+from atomic_p2p.peer.communication import MessageHandler
 from neutro.src.p2p.p2p_api import *
 from neutro.src.chain.transaction import Transaction
 
@@ -113,3 +114,7 @@ def test_send_transaction_direct():
     time.sleep(5)
     stop_peer_thread(peer_1)
     stop_peer_thread(peer_2)
+
+
+if __name__ == '__main__':
+    test_send_broadcast()

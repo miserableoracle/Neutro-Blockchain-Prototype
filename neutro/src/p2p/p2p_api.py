@@ -2,24 +2,26 @@ import socket
 socket.SO_REUSEPORT = 15
 
 from typing import List, Tuple, Dict
-from atomic_p2p.peer import Peer
 from atomic_p2p.peer.entity.peer_info import PeerInfo
 import os
 from os import getcwd
 from os.path import join
 from atomic_p2p.utils.security import self_hash as sh, create_self_signed_cert
-from neutro.src.p2p.peer_database import store_neighbors
-from neutro.src.p2p.peer_database import get_neighbors
+from neutro.src.database.peer_database import store_neighbors
+from neutro.src.database.peer_database import get_neighbors
+from .peer import Peer
+from .neutro_handler import NeutroHandler
 import re
 import time
+from neutro.src.util import loggerutil
 
 
 def create_a_peer(role: str, name: str, host: Tuple[str, int]):
     # creates and starts a peer with a specified certificate
-    self_hash = sh(join(os.getcwd(), 'neutro', 'src'))
+    self_hash = sh(join(os.getcwd()))
 
     # Peers must have the same certificate
-    cert = create_self_signed_cert(getcwd(), 'data/test.pem', 'data/test.key')
+    cert = create_self_signed_cert(getcwd(), 'data/certificate.pem', 'data/private.key')
     peer = Peer(host=host, name=name, role=role, cert=cert, _hash=self_hash)
     peer.start()
 
@@ -82,14 +84,19 @@ def send_broadcast(nodes, from_node, json_transaction_message: str):
 
             # sends a broadcast transaction message from a node to other
             # directly connected nodes except the core node
-            nodes[nds].onProcess(
-                ['send', 'broadcast:sw', json_transaction_message])
+            nodes[nds].handler_broadcast_packet(
+                host=(None, "sw"), pkt_type=NeutroHandler.pkt_type, **{
+                    "msg": json_transaction_message
+                })
 
     indirect_nodes_of(from_node.server_info.name)
 
     # send a broadcast transaction message from core to all the directly
     # connected nodes
-    from_node.onProcess(['send', 'broadcast:sw', json_transaction_message])
+    from_node.handler_broadcast_packet(
+        host=(None, "sw"), pkt_type=NeutroHandler.pkt_type, **{
+            "msg": json_transaction_message
+        })
 
 
 def send_transaction_direct(json_string_transaction: str, from_peer, to_peer):
