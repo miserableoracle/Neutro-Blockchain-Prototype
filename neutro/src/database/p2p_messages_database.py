@@ -14,7 +14,7 @@ def store_messages(src, packet, message):
         print("{0}/{1}".format(packet, message), file=messages_file)
 
 
-def ges_messages(src):
+def get_messages(src):
     """gets the directly connected nodes of a peer"""
     messages_path = str(Path(__file__).parent.parent.parent) + \
                      "/.data/messages/"

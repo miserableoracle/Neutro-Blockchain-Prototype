@@ -83,7 +83,6 @@ def test_send_broadcast():
     json_string_transaction_message = json_string_transaction()
 
     send_broadcast(node, node['core_1'], json_string_transaction_message)
-    print(node['core_1'].last_output)
 
     time.sleep(5)
     for (key, val) in node.items():

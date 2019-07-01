@@ -2,7 +2,7 @@ from atomic_p2p.utils.communication import Handler, Packet
 from neutro.src.util import loggerutil
 
 from neutro.src.database.p2p_messages_database import store_messages
-from neutro.src.database.p2p_messages_database import ges_messages
+from neutro.src.database.p2p_messages_database import get_messages
 
 
 class NeutroHandler(Handler):
