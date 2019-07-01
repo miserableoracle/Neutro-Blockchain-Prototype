@@ -16,7 +16,7 @@ import time
 
 def create_a_peer(role: str, name: str, host: Tuple[str, int]):
     # creates and starts a peer with a specified certificate
-    self_hash = sh(join(os.getcwd(), 'atomic_p2p'))
+    self_hash = sh(join(os.getcwd(), 'neutro', 'src'))
 
     # Peers must have the same certificate
     cert = create_self_signed_cert(getcwd(), 'data/test.pem', 'data/test.key')
@@ -94,13 +94,13 @@ def send_broadcast(nodes, from_node, json_transaction_message: str):
 
 def send_transaction_direct(json_string_transaction: str, from_peer, to_peer):
     # Send a transaction message from one peer to the other
-    from_peer.onProcess(['join', '{}:{}'.format(to_peer.server_info.host[0], to_peer.server_info.host[1]),
+    from_peer.onProcess(['send', '{}:{}'.format(to_peer.server_info.host[0], to_peer.server_info.host[1]),
                          json_string_transaction])
 
 
 def send_block_direct(json_block_string: str, from_peer, to_peer):
     # sends a block message from a peer to another one
-    from_peer.onProcess(['join', '{}:{}'.format(to_peer.server_info.host[0], to_peer.server_info.host[1]),
+    from_peer.onProcess(['send', '{}:{}'.format(to_peer.server_info.host[0], to_peer.server_info.host[1]),
                          json_block_string])
 
 
