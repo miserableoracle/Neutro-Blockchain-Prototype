@@ -96,6 +96,7 @@ def test_send_transaction_direct():
     join_peers(peer_1, peer_2)
 
     time.sleep(4)
+
     def json_string_transaction():
         """base test for transaction"""
         sender = "iWVjc8hWuRuePAv1X8nDZdcjKcqivDUH62YKhBXBHqp2yGfgeXyHJDj5XwCHwjWB6GevCjMYT59XSBiQvMYHQ4P"
@@ -114,7 +115,3 @@ def test_send_transaction_direct():
     time.sleep(5)
     stop_peer_thread(peer_1)
     stop_peer_thread(peer_2)
-
-
-if __name__ == '__main__':
-    test_send_broadcast()
