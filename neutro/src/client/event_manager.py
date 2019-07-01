@@ -18,5 +18,5 @@ class EventManager():
         self.tx_pool_request = Event()
         self.bootstr_request = Event()
         # handle errors
-        self.error = Event()
         self.connection_lost = Event()
+        self.error = Event()
