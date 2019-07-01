@@ -9,6 +9,7 @@ from neutro.src.chain.transaction import Transaction
 def test_creating_peer():
     peer = create_a_peer(role='role', name='name', host=('0.0.0.0', 8000))
     assert peer.stopped.is_set() is False
+    stop_peer_thread(peer)
 
 
 def test_join_peers():
@@ -17,6 +18,10 @@ def test_join_peers():
     join_peers(peer_1, peer_2)
     time.sleep(4)
     assert peer_2.server_info in peer_1.connectlist
+
+    time.sleep(4)
+    stop_peer_thread(peer_1)
+    stop_peer_thread(peer_2)
 
 
 def test_stopping_peer():
@@ -33,6 +38,10 @@ def test_list_peers_in_net():
     time.sleep(4)
     list_of_peers = len(list_peers_in_net(peer_1))
     assert list_of_peers == 1
+
+    time.sleep(4)
+    stop_peer_thread(peer_1)
+    stop_peer_thread(peer_2)
 
 
 def test_send_broadcast():
@@ -74,12 +83,18 @@ def test_send_broadcast():
 
     send_broadcast(node, node['core_1'], json_string_transaction_message)
 
+    time.sleep(5)
+    for (key, val) in node.items():
+        stop_peer_thread(val)
+        time.sleep(2)
+
 
 def test_send_transaction_direct():
     peer_1 = create_a_peer(role='role', name='peer1', host=('0.0.0.0', 8000))
     peer_2 = create_a_peer(role='role', name='peer2', host=('0.0.0.0', 8001))
     join_peers(peer_1, peer_2)
 
+    time.sleep(4)
     def json_string_transaction():
         """base test for transaction"""
         sender = "iWVjc8hWuRuePAv1X8nDZdcjKcqivDUH62YKhBXBHqp2yGfgeXyHJDj5XwCHwjWB6GevCjMYT59XSBiQvMYHQ4P"
@@ -95,3 +110,6 @@ def test_send_transaction_direct():
     json_string_transaction_message = json_string_transaction()
     send_transaction_direct(json_string_transaction_message, peer_1, peer_2)
 
+    time.sleep(5)
+    stop_peer_thread(peer_1)
+    stop_peer_thread(peer_2)
