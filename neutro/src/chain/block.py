@@ -6,6 +6,8 @@ from neutro.src.util import loggerutil
 from neutro.src.util import hashutil
 from neutro.src.util import stringutil
 from neutro.src.trie.trie import Trie
+from neutro.src.chain.transaction import Transaction
+from neutro.src.chain.vote import Vote
 from neutro.src.database import block_database
 
 
