@@ -34,15 +34,15 @@ def verify_message(public_key: ecdsa.VerifyingKey, message: str, _signature: str
 
 def get_vote_sig(private_key: ecdsa.SigningKey, vote) -> str:
     """signs a vote with the given key and returns the signature as hexstring"""
-    return sign_message(private_key, vote.hash())
+    return sign_message(private_key, vote.unsigned_hash())
 
 
 def verify_vote_sig(vote, signature: str, address="") -> bool:
     """verifies a vote signature"""
     if address == "":
-        return verify_message(address_to_key(vote.get_sender_address()), vote.hash(), signature)
+        return verify_message(address_to_key(vote.get_sender_address()), vote.unsigned_hash(), signature)
     else:
-        return verify_message(address_to_key(address), vote.hash(), signature)
+        return verify_message(address_to_key(address), vote.unsigned_hash(), signature)
 
 
 def get_transaction_sig(private_key: ecdsa.SigningKey, transaction) -> str:

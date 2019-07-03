@@ -3,13 +3,15 @@ this class represents a vote that can be broadcasted to the network
 
 the yellow paper of neutro states that peers get voting rights according to the amount of voting_tokens they posess
 """
+import json
+import copy
 from neutro.src.util import stringutil
 from neutro.src.util import hashutil
 
 
 class Vote(object):
     """
-    a vote consists of 
+    a vote consists of
             - previous_block_hash
             - random nonce
             - signature of the sender of the vote
@@ -46,3 +48,25 @@ class Vote(object):
     def hash(self) -> str:
         """not the same as __hash__"""
         return hashutil.hash_string(self.string())
+
+    def unsigned_hash(self) -> str:
+        """creates an unsigned vote and returns a hash of it"""
+        v = copy.copy(self)
+        v.signature = ""
+        return v.hash()
+
+    def get_sender_address(self) -> str:
+        """returns the sender of this vote"""
+        return self.sender
+
+
+def from_json_string(json_string: str) -> Vote:
+    """generates a vote-object from a json-string"""
+    _dict = json.loads(json_string)
+    v = Vote(
+        prev_hash=_dict["prev_hash"],
+        sender=_dict["sender"],
+        nonce=_dict["nonce"],
+        signature=_dict["signature"]
+    )
+    return v
