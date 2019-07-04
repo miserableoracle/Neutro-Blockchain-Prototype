@@ -55,15 +55,15 @@ def test_send_broadcast():
     node['switch_2'] = create_a_peer(role='sw', name='switch_2', host=('127.0.0.1', 8012))
     node['switch_3'] = create_a_peer(role='sw', name='switch_3', host=('127.0.0.1', 8013))
     node['switch_4'] = create_a_peer(role='sw', name='switch_4', host=('127.0.0.1', 8014))
-    node['switch_5'] = create_a_peer(role='sw', name='switch_5', host=('127.0.0.1', 8015))
-    node['switch_6'] = create_a_peer(role='sw', name='switch_6', host=('127.0.0.1', 8016))
+    #node['switch_5'] = create_a_peer(role='sw', name='switch_5', host=('127.0.0.1', 8015))
+    #node['switch_6'] = create_a_peer(role='sw', name='switch_6', host=('127.0.0.1', 8016))
 
     join_peers(node['switch_1'], node['core_1'])
     join_peers(node['switch_2'], node['core_1'])
     join_peers(node['switch_3'], node['core_1'])
     join_peers(node['switch_4'], node['core_1'])
-    join_peers(node['switch_5'], node['switch_4'])
-    join_peers(node['switch_6'], node['switch_4'])
+    #join_peers(node['switch_5'], node['switch_4'])
+    #join_peers(node['switch_6'], node['switch_4'])
 
     # wait for all threads to complete the join process
     time.sleep(5)
@@ -115,3 +115,9 @@ def test_send_transaction_direct():
     time.sleep(5)
     stop_peer_thread(peer_1)
     stop_peer_thread(peer_2)
+
+
+def
+#if __name__ == '__main__':
+    #test_send_broadcast()
+

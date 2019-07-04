@@ -9,11 +9,28 @@ from os.path import join
 from atomic_p2p.utils.security import self_hash as sh, create_self_signed_cert
 from neutro.src.database.peer_database import store_neighbors
 from neutro.src.database.peer_database import get_neighbors
-from .peer import Peer
-from .neutro_handler import NeutroHandler
+from neutro.src.p2p.peer import Peer
+from neutro.src.p2p.neutro_handler import NeutroHandler
 import re
 import time
 from neutro.src.util import loggerutil
+from neutro.src.client.event_manager import EventManager
+from neutro.src.database.p2p_messages_database import get_messages
+from neutro.src.database.block_database import *
+
+
+def init_peer():
+    return create_a_peer(role='core', name='core', host=('127.0.0.1', 8011))
+
+
+def event_manager():
+    event_mg = EventManager()
+    return event_mg
+
+
+def set_block_received_event():
+    em = event_manager()
+    em.block_received.set()
 
 
 def create_a_peer(role: str, name: str, host: Tuple[str, int]):
@@ -25,8 +42,8 @@ def create_a_peer(role: str, name: str, host: Tuple[str, int]):
     peer = Peer(host=host, name=name, role=role, cert=cert, _hash=self_hash)
     peer.start()
 
-    # time.sleep(10)
-    # peer.stop()
+    time.sleep(10)
+    peer.stop()
 
     return peer
 
@@ -41,6 +58,58 @@ def join_peers(peer_a: Peer, peer_b: Peer):
     # Sends a join request from peer_a to peer_b
     peer_a.onProcess(['join', '{}:{}'.format(
         peer_b.server_info.host[0], peer_b.server_info.host[1])])
+
+
+def connect(peer: Peer, connect_to_peer=None):
+    # connects a peer to existing peers
+
+    core_peer = init_peer()
+    #  returns connect_to_peer if a peer to be connected is set and otherwise returns an initiated peer
+    peer2 = connect_to_peer or core_peer
+
+    # add a peer in the net
+    join_peers(peer, peer2)
+
+    # set block received event
+    set_block_received_event()
+    loggerutil.debug("set block received event")
+
+
+def update_chain(current_height):
+    pass
+
+
+def update_tx_pool():
+    pass
+
+
+def send_height(height):
+    return height
+
+
+def get_recv_block(peer):
+    # gets the stored message of the peer received by
+    return get_messages(peer.server_info.host)
+
+
+def get_requ_block_numbers():
+    return
+
+
+def get_requ_bootstr_numbers():
+    pass
+
+
+def get_recv_tx():
+    pass
+
+
+def get_recv_tx_pool():
+    pass
+
+
+def get_recv_bootstr():
+    pass
 
 
 def list_peers_in_net(core: Peer) -> Dict[Tuple[str, int], PeerInfo]:
@@ -114,3 +183,4 @@ def send_block_direct(json_block_string: str, from_peer, to_peer):
 def send_bootstrap(min: int, max: int, blocks: List[str]):
     # sends a set of blocks (min to max) for broadcasting
     return blocks
+
