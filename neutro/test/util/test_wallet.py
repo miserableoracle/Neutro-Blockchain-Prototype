@@ -18,7 +18,7 @@ def test_sign_transaction():
     # test if transactions can be signed
     w = wallet.generate_new_wallet()
     t = Transaction(sender=w.get_address(), receivers=[
-        "01"], amounts=[1], nonce=1, fee=100)
+        "01"], amounts=[1], fee=100)
     w.sign_transaction(t)
     assert t.verify()
 
@@ -27,7 +27,7 @@ def test_sign_unvalid_tx():
     # test if signing unvalid transaction is rejected
     w = wallet.generate_new_wallet()
     t = Transaction(sender="different sender than wallet", receivers=[
-        "01"], amounts=[1], nonce=1, fee=100)
+        "01"], amounts=[1], fee=100)
     with pytest.raises(ValueError):
         w.sign_transaction(t)
 
@@ -37,7 +37,7 @@ def test_nonce_correctly():
     # test if loaded wallet (w_copy) has correct nonce
     w = wallet.generate_new_wallet()
     t = Transaction(sender=w.get_address(), receivers=[
-        "01"], amounts=[1], nonce=1, fee=100)
+        "01"], amounts=[1], fee=100)
     assert w.get_nonce() == 0
     w.sign_transaction(t)
     assert w.get_nonce() == 1
@@ -48,8 +48,7 @@ def test_nonce_in_tx_correct():
     w = wallet.generate_new_wallet()
 
     t = Transaction(sender=w.get_address(), receivers=[
-        "01"], amounts=[1], nonce=w.get_nonce(), fee=100)
-    assert t.nonce == w.get_nonce()
+        "01"], amounts=[1], fee=100)
 
     tx_hash_old = ""
     tx_sig_old = ""

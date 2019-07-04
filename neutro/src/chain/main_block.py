@@ -102,7 +102,7 @@ class MainBlock(object):
         return hashutil.hash_string(self.string())
 
 
-def from_json_string(json_block: str) -> MainBlock:
+def from_json(json_block: str) -> MainBlock:
     """generates a block-object from a json-string"""
     _dict = json.loads(json_block)
     block = MainBlock(

@@ -13,7 +13,7 @@ from neutro.src.util import cryptoutil
 class Transaction(object):
     """an Object representing a transaction"""
     fields = [
-        ("sender_address", str),
+        ("sender", str),
         ("receivers", List[str]),
         ("amounts", List[int]),
         ("nonce", int),
@@ -21,13 +21,13 @@ class Transaction(object):
         ("signature", str)
     ]
 
-    def __init__(self, sender: str, receivers: List[str], amounts: List[int], nonce: int, fee: int, signature: str=""):
-        self.sender_address = sender
+    def __init__(self, sender: str, receivers: List[str], amounts: List[int], fee: int):
+        self.sender = sender
         self.receivers = receivers
         self.amounts = amounts
-        self.nonce = nonce
         self.fee = fee
-        self.signature = signature
+        self.nonce = 0
+        self.signature = ""
         loggerutil.debug("creating transaction: " + self.string())
 
     def __str__(self) -> str:
@@ -49,9 +49,9 @@ class Transaction(object):
         """returns a hex string of the hash of this object"""
         return hashutil.hash_string(self.string())
 
-    def get_sender_address(self) -> str:
+    def get_sender(self) -> str:
         """returns sender address"""
-        return self.sender_address
+        return self.sender
 
     def unsigned_hash(self) -> str:
         """creates an unsigned transaction and returns a hash of it"""
@@ -61,7 +61,7 @@ class Transaction(object):
 
     def verify(self)-> bool:
         """
-        verifies if this tx is signed by sender_address' private_key
+        verifies if this tx is signed by sender' private_key
         """
         try:
             return cryptoutil.verify_transaction_sig(self, self.signature)
@@ -73,15 +73,15 @@ class Transaction(object):
         return self.signature
 
 
-def from_json_string(json_string: str) -> Transaction:
+def from_json(json_string: str) -> Transaction:
     """generates a transaction-object from a json-string"""
     _dict = json.loads(json_string)
     tx = Transaction(
-        sender=_dict["sender_address"],
+        sender=_dict["sender"],
         receivers=_dict["receivers"],
         amounts=_dict["amounts"],
-        nonce=_dict["nonce"],
-        fee=_dict["fee"],
-        signature=_dict["signature"]
+        fee=_dict["fee"]
     )
+    tx.nonce = _dict["nonce"]
+    tx.signature = _dict["signature"]
     return tx

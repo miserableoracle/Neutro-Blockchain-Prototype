@@ -33,6 +33,7 @@ For further details see [neutro.io](https://neutro.io) or the [Yellow Paper](htt
 
 ### Run tests:
 - [install pytest](https://docs.pytest.org/en/latest/getting-started.html)
+- [install pytest-cov](https://pytest-cov.readthedocs.io/en/latest/readme.html#installation)
 - nagivate to the root_directory of the cloned repository
 - run `pytest`
 	- if you want to change the configuration of pytest have a look at:

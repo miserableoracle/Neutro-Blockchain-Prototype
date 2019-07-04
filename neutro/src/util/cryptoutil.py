@@ -40,7 +40,7 @@ def get_vote_sig(private_key: ecdsa.SigningKey, vote) -> str:
 def verify_vote_sig(vote, signature: str, address="") -> bool:
     """verifies a vote signature"""
     if address == "":
-        return verify_message(address_to_key(vote.get_sender_address()), vote.unsigned_hash(), signature)
+        return verify_message(address_to_key(vote.get_sender()), vote.unsigned_hash(), signature)
     else:
         return verify_message(address_to_key(address), vote.unsigned_hash(), signature)
 
@@ -59,6 +59,6 @@ def get_transaction_sig(private_key: ecdsa.SigningKey, transaction) -> str:
 def verify_transaction_sig(transaction, signature: str, address="") -> bool:
     """verifys that a given transaction is signed with senders private key"""
     if address == "":
-        return verify_message(address_to_key(transaction.get_sender_address()), transaction.unsigned_hash(), signature)
+        return verify_message(address_to_key(transaction.get_sender()), transaction.unsigned_hash(), signature)
     else:
         return verify_message(address_to_key(address), transaction.unsigned_hash(), signature)

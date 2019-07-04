@@ -48,7 +48,7 @@ class Wallet(object):
 
     def sign_vote(self, vote):
         """signes a vote with this wallet"""
-        if vote.get_sender_address() != self.get_address():
+        if vote.get_sender() != self.get_address():
             raise ValueError(
                 "cannot sign vote where v.sender is different to this wallets address")
             loggerutil.info("could not sign vote " +
@@ -59,7 +59,7 @@ class Wallet(object):
         """
         signes the transaction with this wallet. Also updating the nonce.
         """
-        if transaction.get_sender_address() != self.get_address():
+        if transaction.get_sender() != self.get_address():
             raise ValueError(
                 "cannot sign transaction where tx.sender is different to this wallets address")
             loggerutil.info("could not sign transaction " +
@@ -74,7 +74,7 @@ class Wallet(object):
 
     def sign_vt_transaction_sender(self, vt_transaction):
         """signs a voting token transaction with this wallet as sender"""
-        if vt_transaction.get_sender_address() != self.get_address():
+        if vt_transaction.get_sender() != self.get_address():
             raise ValueError(
                 "cannot sign vt_transaction where tx.sender is different to this wallets address")
             loggerutil.info("could not sign vt_transaction as sender" +
@@ -89,7 +89,7 @@ class Wallet(object):
 
     def sign_vt_transaction_receiver(self, vt_transaction):
         """signs a voting token transaction with this wallet as receiver"""
-        if vt_transaction.get_receiver_address() != self.get_address():
+        if vt_transaction.get_receiver() != self.get_address():
             raise ValueError(
                 "cannot sign vt_transaction where tx.receiver is different to this wallets address")
             loggerutil.info("could not sign vt_transaction as receiver" +

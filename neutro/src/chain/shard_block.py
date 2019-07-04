@@ -6,6 +6,7 @@ from neutro.src.util import loggerutil
 from neutro.src.util import hashutil
 from neutro.src.util import stringutil
 from neutro.src.trie.trie import Trie
+from neutro.src.chain import transaction
 from neutro.src.chain.transaction import Transaction
 from neutro.src.database import block_database
 
@@ -37,7 +38,7 @@ class ShardBlock(object):
             self.tx_list = tx_list
         self.trie = Trie([tx.hash() for tx in self.tx_list])
         self.tx_count = self.trie.size()
-        self.tx_merkle_root = trie.root()
+        self.tx_merkle_root = self.trie.root()
 
         loggerutil.debug("created ShardBlock: " + self.string())
 
@@ -61,6 +62,8 @@ class ShardBlock(object):
             ret.update({f[0]: getattr(self, f[0])})
         if not with_transaction_list:
             ret.pop("tx_list", None)
+        else:
+            ret["tx_list"] = [tx.string() for tx in ret["tx_list"]]
         return stringutil.dict_to_string(ret)
 
     def hash(self) -> str:
@@ -74,3 +77,19 @@ class ShardBlock(object):
     def get_heigth(self) -> int:
         """returns the height of this block"""
         return self.height
+
+
+def from_json(json_block: str) -> ShardBlock:
+    """generates a block-object from a json-string"""
+    _dict = json.loads(json_block)
+    try:
+        tx_list = [transaction.from_json(tx) for tx in _dict["tx_list"]]
+    except KeyError:
+        tx_list = []
+    block = ShardBlock(
+        prev_main_hash=_dict["prev_main_hash"],
+        prev_shard_hash=_dict["prev_shard_hash"],
+        miner=_dict["miner"],
+        tx_list=tx_list
+    )
+    return block
