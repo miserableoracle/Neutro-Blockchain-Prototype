@@ -31,7 +31,7 @@ class VotingTokenTransaction(object):
         ("receiver_signature", str)
     ]
 
-    def __init__(self, sender, receiver, vt_amount: int, nto_amount: int, sender_nonce: int=0, receiver_nonce: int=0, sender_signature: str="", receiver_signature: str=""):
+    def __init__(self, sender: str, receiver: str, vt_amount: int, nto_amount: int):
         self.sender_address = sender
         self.receiver_address = receiver
         self.vt_amount = vt_amount

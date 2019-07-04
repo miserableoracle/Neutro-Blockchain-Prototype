@@ -54,7 +54,7 @@ class ShardBlock(object):
         """
         returns a json-string of itself
 
-        with_transaction_list is there to store and boradcast a 
+        with_transaction_list is there to store and boradcast a
         shard-block containing all information
         """
         ret = {}
@@ -86,10 +86,14 @@ def from_json(json_block: str) -> ShardBlock:
         tx_list = [transaction.from_json(tx) for tx in _dict["tx_list"]]
     except KeyError:
         tx_list = []
+
     block = ShardBlock(
         prev_main_hash=_dict["prev_main_hash"],
         prev_shard_hash=_dict["prev_shard_hash"],
         miner=_dict["miner"],
         tx_list=tx_list
     )
+    block.height = _dict["height"]
+    block.time = _dict["time"]
+
     return block

@@ -1,150 +1,75 @@
 import pytest
 
-from neutro.src.chain import block
-from neutro.src.chain.block import Block
-from neutro.src.database import block_database
+import time
+from neutro.src.util import stringutil
+from neutro.src.chain import main_block
+from neutro.src.chain import shard_block
+from neutro.src.chain.main_block import MainBlock
+from neutro.str.chain.vote import Vote
+from neutro.src.chain.transactin import Transaction
+from neutro.src.chain.shard_block import ShardBlock
+from neutro.src.chain.voting_token_transaction import VotingTokenTransaction
 
 
-def test_block():
-    # test creation of blocks
-    prev_hash = "0001"
-    transactions = ["00af"]
-    miner = "abcdef"
-    difficulty = "0a"
-    nonce = "000000000001"
-
-    b = Block(prev_hash, transactions, miner,
-              difficulty, nonce)
-    b.time = 0
-
-    block_hash = b.hash()
-    assert block_hash == "af51c2a176fdda2f5d00d4a7aa8a194a7d3bc3caa6beafd9a207727d7cdfc241"
+def get_vote_list(_range):
+    return [Vote("a" + str(i), "b" + str(i), [i], "sig" + str(i)) for i in range(_range)]
 
 
-def test_block_no_tx():
-    # test block with 0 tx
-    prev_hash = "0001"
-    transactions = []
-    miner = "abcdef"
-    difficulty = "0a"
-    nonce = "000000000001"
-
-    # make 2 blocks with [] and None as txs
-    b1 = Block(prev_hash, transactions, miner,
-               difficulty, nonce)
-
-    transactions = None
-    b2 = Block(prev_hash, transactions, miner,
-               difficulty, nonce)
-    b2.time = b1.time
-
-    assert b1.string() == b2.string()
-    assert b1.hash() == b2.hash()
-    assert b1.get_tx_root() == b2.get_tx_root()
+def get_shard_list(_range):
+    def get_tx_list(tx_range):
+        return [Transaction("a" + str(i), ["b" + str(i)], [i], 10 * i) for i in range(_range)]
+    return [ShardBlock("a" + str(i), "b" + str(i), "c" + str(i), get_tx_list(10)) for i in range(_range)]
 
 
-def test_block_from_json():
-    prev_hash = "abc"
-    transactions = ["a", "b", "c", "d", "e", "f"]
-    miner = "afebc001"
-    difficulty = "000afx"
-    nonce = "1"
-
-    b1 = Block(prev_hash, transactions, miner,
-               difficulty, nonce)
-    b2 = block.from_json_string(b1.string())
-
-    assert b1.string() == b2.string()
-    assert b1.hash() == b2.hash()
+def get_vtx_list(_range):
+    return [VotingTokenTransaction("a" + str(i), "b" + str(i), i, i) for i in range(_range)]
 
 
-def test_save_load_block():
-    """save a block to local storage and read it from there"""
-    prev_hash = "abc"
-    transactions = ["a", "b", "c", "d", "e", "f"]
-    miner = "afebc001"
-    difficulty = "000afx"
-    nonce = "1"
-    try:
-        b1 = Block(prev_hash, transactions, miner,
-                   difficulty, nonce)
-        b1.save()
+def test_main_block():
+    prev_hash = "1"
+    miner = "2"
+    difficulty = "3"
 
-        b2 = block.from_json_string(
-            block_database.load_block_by_height(b1.get_heigth()))
+    mb = MainBlock(prev_hash, miner, difficulty, [], [], [])
+    # time is automatically set, so we need to change it for the test
+    mb.time = 1562228422767
 
-        b3 = block.from_json_string(
-            block_database.load_block_by_hash(b1.hash()))
-
-        assert b1.hash() == b2.hash()
-        assert b2.hash() == b3.hash()
-    finally:
-        # reset the database
-        block_database.remove_database()
+    assert mb.string() == '{"prev_hash": "1", "height": 0, "time": 1562228422767, "miner": "2", "difficulty": "3", "nonce": "0000000000000000", "vote_merkle_root": "f1534392279bddbf9d43dde8701cb5be14b82f76ec6607bf8d6ad557f60f304e", "vote_count": 0, "shard_merkle_root": "f1534392279bddbf9d43dde8701cb5be14b82f76ec6607bf8d6ad557f60f304e", "shard_count": 0, "vtx_merkle_root": "f1534392279bddbf9d43dde8701cb5be14b82f76ec6607bf8d6ad557f60f304e", "vtx_count": 0, "next_shard_producers": []}'
+    assert str(mb) == mb.string()
+    assert mb.hash() == "8becb0feaf4b853fd84b38ddf3098a14d2f08d890cb7ecbdfdbc18dff9a72bd5"
+    assert mb.get_vote_root() == stringutil.empty_root
+    assert mb.get_shard_root() == stringutil.empty_root
+    assert mb.get_vtx_root() == stringutil.empty_root
 
 
-def test_block_height():
-    """tests that the height of the block is calculated correctly"""
-    prev_hash = "abc"
-    transactions = ["a", "b", "c", "d", "e", "f"]
-    miner = "afebc001"
-    difficulty = "000afx"
-    nonce = "1"
-    try:
-        b1 = Block(prev_hash, transactions, miner,
-                   difficulty, nonce)
-        b1.save()
-        assert b1.get_heigth() == 0
-        b2 = Block(prev_hash, transactions, miner,
-                   difficulty, nonce)
-        assert b2.get_heigth() == 1
+def test_main__from_json():
+    prev_hash = "1"
+    miner = "2"
+    difficulty = "3"
 
-    finally:
-        # reset the database
-        block_database.remove_database()
+    mb = MainBlock(prev_hash, miner, difficulty, [], [], [])
+    mb.height = 1  # make sure height is copied
+    time.sleep(1 / 1000)  # make sure time is copied
+    mb.nonce = "abcdabcdabcdabcd"  # make sure nonce is copied
+    # make sure shard producers are copied
+    mb.next_shard_producers = ["a", "b", "c"]
+    mb_copy = main_block.from_json(mb.string())
+
+    assert mb.string() == mb_copy.string()
+    assert mb.hash() == mb_copy.hash()
 
 
-def test_save_multiple_blocks():
-    """save multiple blocks with different height"""
-    prev_hash = "abc"
-    transactions = ["a", "b", "c", "d", "e", "f"]
-    miner = "afebc001"
-    difficulty = "000afx"
-    nonce = "1"
-    try:
-        # save block 1
-        b1 = Block(prev_hash, transactions, miner,
-                   difficulty, nonce)
-        b1.save()
-        # save block 2
-        b2 = Block(prev_hash, transactions, miner,
-                   difficulty, nonce)
-        b2.save()
-
-        with pytest.raises(ValueError):
-            b2.height = 0
-            b2.save()
-    finally:
-        # reset the database
-        block_database.remove_database()
+def test_main_from_json_with_vote_list():
+    pass
 
 
-def test_get_current_height():
-    """saves multiple blocks and tests that block_database.get_current_height() is correct"""
-    assert block_database.get_current_height() == -1
+def test_main_from_json_with_shard_list():
+    pass
 
-    try:
-        for i in range(10):
-            prev_hash = "abc"
-            transactions = ["a", "b", "c", "d", "e", "f"]
-            miner = "afebc001"
-            difficulty = "000afx"
-            nonce = "1"
-            b1 = Block(prev_hash, transactions, miner,
-                       difficulty, nonce)
-            b1.height = i
-            b1.save()
 
-            assert block_database.get_current_height() == i
-    finally:
-        block_database.remove_database()
+def test_main_from_json_with_vtx_list():
+    pass
+
+
+def test_main_from_json_with_all_lists():
+    pass

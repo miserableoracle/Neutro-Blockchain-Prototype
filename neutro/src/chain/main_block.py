@@ -20,7 +20,7 @@ class MainBlock(object):
         ("time", int),
         ("miner", str),
         ("difficulty", str),
-        ("reward", str),
+        # TODO ("reward", str),
         ("nonce", str),
 
         ("vote_merkle_root", str),
@@ -44,6 +44,7 @@ class MainBlock(object):
         self.miner = miner
         self.time = int(time.time() * 1000)
         self.difficulty = difficulty
+        self.nonce = "".join("0" * 16)  # init with nonce = 0
 
         if not vote_list or len(vote_list) == 0:
             self.vote_list = []
@@ -69,6 +70,8 @@ class MainBlock(object):
         self.vtx_count = self.vtx_trie.size()
         self.vtx_merkle_root = self.vtx_trie.root()
 
+        self.next_shard_producers = []
+
         loggerutil.debug("created MainBlock: " + self.string())
 
     def __str__(self) -> str:
@@ -83,36 +86,81 @@ class MainBlock(object):
         """
         returns a json-string of itself
 
-        with_x_list is there to store and broadcast a 
+        with_x_list is there to store and broadcast a
         main-block containing all information
         """
         ret = {}
         for f in self.fields:
             ret.update({f[0]: getattr(self, f[0])})
+
         if not with_vote_list:
             ret.pop("vote_list")
+        else:
+            ret["vote_list"] = [v.string() for v in ret["vote_list"]]
+
         if not with_shard_list:
             ret.pop("shard_list")
+        else:
+            ret["shard_list"] = [s.string() for s in ret["shard_list"]]
+
         if not with_vtx_list:
             ret.pop("vtx_list")
+        else:
+            ret["vtx_list"] = [vtx.string() for vtx in ret["vtx_list"]]
+
         return stringutil.dict_to_string(ret)
 
     def hash(self) -> str:
         """returns a hex string of the hash of this object"""
         return hashutil.hash_string(self.string())
 
+    def get_prev_hash(self) -> str:
+        return self.prev_hash
+
+    def get_miner(self) -> str:
+        return self.miner
+
+    def get_vote_root(self) -> str:
+        return self.vote_merkle_root
+
+    def get_shard_root(self) -> str:
+        return self.shard_merkle_root
+
+    def get_vtx_root(self) -> str:
+        return self.vtx_merkle_root
+
 
 def from_json(json_block: str) -> MainBlock:
-    """generates a block-object from a json-string"""
+    """generates a main-block-object from a json-string"""
     _dict = json.loads(json_block)
+
+    try:
+        vote_list = [vote.from_json(v) for v in _dict["vote_list"]]
+    except KeyError:
+        vote_list = []
+
+    try:
+        shard_list = [shard.from_json(s) for s in _dict["shard_list"]]
+    except KeyError:
+        shard_list = []
+
+    try:
+        vtx_list = [
+            voting_token_transaction.from_json for vtx in _dict["vtx_list"]]
+    except KeyError:
+        vtx_list = []
+
     block = MainBlock(
         prev_hash=_dict["prev_hash"],
         miner=_dict["miner"],
         difficulty=_dict["difficulty"],
-        vote_list=_dict["vote_list"],
-        shard_list=_dict["shard_list"],
-        vtx_list=_dict["vtx_list"]
+        vote_list=vote_list,
+        shard_list=shard_list,
+        vtx_list=vtx_list
     )
-    for f in block.fields:
-        block.f = _dict[f[0]]
+    block.height = _dict["height"]
+    block.time = _dict["time"]
+    block.nonce = _dict["nonce"]
+    block.next_shard_producers = _dict["next_shard_producers"]
+
     return block
