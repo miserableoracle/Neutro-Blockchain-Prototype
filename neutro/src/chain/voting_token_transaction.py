@@ -10,8 +10,9 @@ from neutro.src.util import stringutil
 from neutro.src.util import cryptoutil
 
 
-class Vt_Transaction(object):
+class VotingTokenTransaction(object):
     """
+    VotingTokenTransaction
     a transaction signed by sender and reciever
 
     what this dose is send voting tokens from sender to reciever, 
@@ -39,7 +40,7 @@ class Vt_Transaction(object):
         self.receiver_nonce = receiver_nonce
         self.sender_signature = sender_signature
         self.receiver_signature = receiver_signature
-        loggerutil.debug("creating vt_transaction: " + self.string())
+        loggerutil.debug("creating VotingTokenTransaction: " + self.string())
 
     def __str__(self) -> str:
         """returns a JsonString of itself"""
@@ -57,7 +58,7 @@ class Vt_Transaction(object):
         return stringutil.dict_to_string(ret)
 
     def hash(self) -> str:
-        """not the same as __hash__"""
+        """returns a hex string of the hash of this object"""
         return hashutil.hash_string(self.string())
 
     def get_sender_address(self) -> str:
@@ -97,10 +98,10 @@ class Vt_Transaction(object):
         return self.verify_sender_sig() and self.verify_receiver_sig()
 
 
-def from_json_string(json_string: str) -> Vt_Transaction:
+def from_json_string(json_string: str) -> VotingTokenTransaction:
     """generates a transaction-object from a json-string"""
     _dict = json.loads(json_string)
-    vt_tx = Vt_Transaction(
+    vt_tx = VotingTokenTransaction(
         sender=_dict["sender_address"],
         receiver=_dict["receiver_address"],
         vt_amount=_dict["vt_amount"],

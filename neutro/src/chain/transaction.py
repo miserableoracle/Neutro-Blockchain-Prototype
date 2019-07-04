@@ -46,7 +46,7 @@ class Transaction(object):
         return stringutil.dict_to_string(ret)
 
     def hash(self) -> str:
-        """not the same as __hash__"""
+        """returns a hex string of the hash of this object"""
         return hashutil.hash_string(self.string())
 
     def get_sender_address(self) -> str:

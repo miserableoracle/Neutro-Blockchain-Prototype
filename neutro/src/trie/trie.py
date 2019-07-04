@@ -24,6 +24,7 @@ class Trie(object):
             calc_merkle_root(self)
         else:
             self._size = 0
+            self.root_hash = stringutil.empty_root
         loggerutil.debug("creating merkle-trie with root: " + self.root())
 
     def __str__(self) -> str:

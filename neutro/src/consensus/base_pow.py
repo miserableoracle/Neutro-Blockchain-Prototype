@@ -7,13 +7,13 @@ import threading
 from neutro.src.util import loggerutil
 from neutro.src.util import hashutil
 from neutro.src.util import stringutil
-from neutro.src.chain.block import Block
+from neutro.src.chain.main_block import MainBlock
 
 
 class Pow(threading.Thread):
     """this class dose basic pow work on a seperate thread"""
 
-    def __init__(self, block: Block):
+    def __init__(self, block: MainBlock):
         threading.Thread.__init__(self)
         self.block = block
         self.stop = threading.Event()

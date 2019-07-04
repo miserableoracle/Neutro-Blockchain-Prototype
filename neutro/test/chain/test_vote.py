@@ -33,6 +33,8 @@ def test_sign_vote_valid():
     v = Vote(prev_hash, sender, nonce)
     w.sign_vote(v)
     assert cryptoutil.verify_vote_sig(v, v.signature, v.sender)
+    with pytest.raises(AssertionError):
+        cryptoutil.verify_vote_sig(v, "")
 
 
 def test_sign_vote_invalid_address():

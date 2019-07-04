@@ -28,10 +28,13 @@ Assumptions that needed to be made that the paper dose not state.
     -validation token transactions are only main chain
     -voting client behaviour:
         -just for the prototype "first block I see, I vote for" 
-    -there is a fixed amount of voting tokens: 
+    -there is a fixed amount of voting tokens 
+        -TODO amount?
 
 - Shard Blocks:
     -they also contain a "previous_hash" field, so that finding the main block of a shard is just going to previous_block_number + 1.
+    -shard blocks are also chained
+        -even over main blocks boundaries, this makes it easy to parse the shard chain for light client
 
 - Address:
     - using base58 of ECDSA public_key as address
@@ -49,9 +52,10 @@ Assumptions that needed to be made that the paper dose not state.
         - block_hash(es) are linked to block_height in /blocks/hash.dictionary
 
 
-Possible Optimisations:
+Possible Optimisations and also help wanted:
     -database
-        -rework to use something like mongodb
+        -restructure all the db stuff so we acually have a database
+            -rework to use something like mongodb (or maybe something that is "light" and not so powerfull as mongodb)
     -make client smarter
         -start mining wehn not all shards are there (because 2/3 +1 shards are a valid block)
     -rework consensus so that there is no downtime for tx throuput while mining main block
