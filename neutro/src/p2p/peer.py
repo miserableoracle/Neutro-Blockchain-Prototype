@@ -5,7 +5,7 @@ from neutro.src.util import loggerutil
 
 
 class Peer(AtomicP2PPeer):
-
+    """neutro peer that registers our neutro handler with a callback functionality"""
     def __init__(self, host, name, role, cert, _hash):
         super(Peer, self).__init__(
             host=host, name=name, role=role, cert=cert, _hash=_hash)

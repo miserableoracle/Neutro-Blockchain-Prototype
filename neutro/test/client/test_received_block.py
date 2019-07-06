@@ -6,14 +6,8 @@ def p2p_recv_block():
     get_recv_block(init_peer())
 
 
-def client_running():
-    client1 = Client()
-
-
 def test_recv_event_block():
-    event_manager()
-    set_events()
-    client_running()
+    client1 = Client()
 
 
 if __name__ == '__main__':

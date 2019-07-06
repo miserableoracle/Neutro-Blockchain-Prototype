@@ -6,7 +6,7 @@ from neutro.src.database.p2p_messages_database import get_messages
 
 
 class NeutroHandler(Handler):
-    '''handles the packet's sending and receiving'''
+    """handles the packet's sending and receiving"""
     pkt_type = "neutro_pkt"
 
     def __init__(self, peer, callback):

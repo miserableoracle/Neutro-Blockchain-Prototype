@@ -46,6 +46,15 @@ class Wallet(object):
     def get_private_key(self):
         return self.private_key
 
+    def sign_vote(self, vote):
+        """signes a vote with this wallet"""
+        if vote.get_sender_address() != self.get_address():
+            raise ValueError(
+                "cannot sign vote where v.sender is different to this wallets address")
+            loggerutil.info("could not sign vote " +
+                            vote.string() + " with wallet " + self.string())
+        vote.signature = cryptoutil.get_vote_sig(self.get_private_key(), vote)
+
     def sign_transaction(self, transaction):
         """
         signes the transaction with this wallet. Also updating the nonce.

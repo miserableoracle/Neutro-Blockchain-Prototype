@@ -6,7 +6,10 @@ from neutro.src.util import loggerutil
 from neutro.src.util import hashutil
 from neutro.src.util import stringutil
 from neutro.src.trie.trie import Trie
+from neutro.src.chain.transaction import Transaction
+from neutro.src.chain.vote import Vote
 from neutro.src.database import block_database
+from neutro.src.database import peer_block_database
 
 
 class Block(object):
@@ -30,8 +33,10 @@ class Block(object):
         self.miner = miner
         try:
             self.height = block_database.get_current_height() + 1
+            self.height_peer = peer_block_database.get_current_height() + 1
         except:
             self.height = 0
+            self.height_peer = 0
         self.difficulty = difficulty
         self.nonce = nonce
         self.reward = "00"
@@ -74,9 +79,17 @@ class Block(object):
         """returns the height of this block"""
         return self.height
 
+    def get_height_peer(self):
+        """returns the height of this block - peer case"""
+        return self.height_peer
+
     def save(self):
         """saves this block to local database"""
         block_database.save_block(self.height, self.string(), self.hash())
+
+    def peer_save(self):
+        """saves this block to local database"""
+        peer_block_database.save_block(self.height_peer, self.string(), self.hash())
 
 
 def from_json_string(json_block: str) -> Block:

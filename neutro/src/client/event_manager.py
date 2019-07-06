@@ -2,6 +2,7 @@ import threading
 from threading import Event
 from neutro.src.util import loggerutil
 
+
 class EventManager():
     """this class is just a holder object for all the events the p2p thread needs the client to know"""
 
@@ -18,7 +19,6 @@ class EventManager():
         self.tx_pool_request = Event()
         self.bootstr_request = Event()
         # handle errors
-        self.error = Event()
         self.connection_lost = Event()
-
+        self.error = Event()
 
