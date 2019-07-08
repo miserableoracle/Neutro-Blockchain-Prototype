@@ -79,7 +79,7 @@ def test_save_load_block():
         assert b1.hash() == b2.hash()
         assert b2.hash() == b3.hash()
     finally:
-        #reset the database"
+        # reset the database
         block_database.remove_database()
 
 
@@ -97,6 +97,7 @@ def test_block_height():
         assert b1.get_heigth() == 0
         b2 = Block(prev_hash, transactions, miner,
                    difficulty, nonce)
+        print(b2.get_heigth())
         assert b2.get_heigth() == 1
 
     finally:
@@ -148,4 +149,5 @@ def test_get_current_height():
             assert block_database.get_current_height() == i
     finally:
         block_database.remove_database()
+
 

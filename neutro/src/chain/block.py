@@ -10,7 +10,7 @@ from neutro.src.chain.transaction import Transaction
 from neutro.src.chain.vote import Vote
 from neutro.src.database import block_database
 from neutro.src.database import peer_block_database
-
+from neutro.src.client.client_runner import Client
 
 class Block(object):
     """class representing a block"""
@@ -27,13 +27,13 @@ class Block(object):
         ("time", int)
     ]
 
-    def __init__(self, prev_hash: str, transactions: List[str], miner: str, difficulty: str, nonce: str):
+    def __init__(self, prev_hash: str, transactions: List[str], miner: str, difficulty: str, nonce: str, client=None):
         self.prev_hash = prev_hash
         self.transactions = transactions
         self.miner = miner
         try:
             self.height = block_database.get_current_height() + 1
-            self.height_peer = peer_block_database.get_current_height() + 1
+            self.height_peer = peer_block_database.get_current_height(client.peer_host) + 1
         except:
             self.height = 0
             self.height_peer = 0
@@ -87,9 +87,9 @@ class Block(object):
         """saves this block to local database"""
         block_database.save_block(self.height, self.string(), self.hash())
 
-    def peer_save(self):
+    def peer_save(self, client):
         """saves this block to local database"""
-        peer_block_database.save_block(self.height_peer, self.string(), self.hash())
+        peer_block_database.save_block(client, self.height_peer, self.string(), self.hash())
 
 
 def from_json_string(json_block: str) -> Block:

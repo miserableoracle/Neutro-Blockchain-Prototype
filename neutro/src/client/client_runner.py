@@ -15,35 +15,38 @@ p2p
 
 import threading
 from neutro.src.util import loggerutil
-from neutro.src.database import wallet_database, block_database
+from neutro.src.database import wallet_database, block_database, peer_block_database
 from neutro.src.client.transaction_pool import Pool
 from neutro.src.p2p.p2p_api import P2P_API
+import time
 
 
 class Client(threading.Thread):
     """this class does all the previously described tasks"""
 
-    def __init__(self):
+    def __init__(self, peer_init=None):
         threading.Thread.__init__(self)
         self.p2p_api = P2P_API()
         self.stop = threading.Event()
         self.wallet = wallet_database.load_wallet()
         self.event_manager = self.p2p_api.event_mg
-        self.peer = self.p2p_api.create_a_peer(role="myself", name=self.wallet.get_address(), host=("127.0.0.1", 8011))
+        # specificy the peer from the peer_init if it is called with peer or otherwise specify here
+        self.peer = peer_init or self.p2p_api.create_a_peer(role="myself", name=self.wallet.get_address(), host=("127.0.0.1", 8012))
         self.peer_host = self.peer.server_info.host
+        # self.connected_peers = self.p2p_api.list_peers_in_net(self.peer)
         self.pool = Pool()
         self.start()
 
     def run(self):
         loggerutil.debug("client started")
-        print(hex(id(self.event_manager)))
 
         # blocking call, connects this peer to other known peers
         self.p2p_api.connect(self.peer)
+
         loggerutil.debug("client connected")
 
         #  blocking call
-        current_height = block_database.get_current_height()
+        current_height = peer_block_database.get_current_height(self.peer_host)
         block_list = self.p2p_api.update_chain(current_height)
 
         # non blocking
@@ -143,9 +146,10 @@ class Client(threading.Thread):
             self.event_manager.connection_lost.clear()
 
         if self.event_manager.error.isSet():
-            loggerutil.error(p2p_api.get_error_message())
+            loggerutil.debug("error event is triggered")
+            loggerutil.error(self.p2p_api.get_error_message())
             # shut down the client after logging the error
-            self.p2p_api.stop_peer(self.peer)
+            self.p2p_api.stop_peer_thread(self.peer)
             return True
 
         return False
@@ -154,6 +158,3 @@ class Client(threading.Thread):
         """returns event_manager object of client"""
         self.p2p_api.em(self.event_manager)
 
-
-if __name__ == '__main__':
-    client = Client()

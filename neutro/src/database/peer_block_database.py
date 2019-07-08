@@ -3,11 +3,9 @@ import shutil
 from pathlib import Path
 
 from neutro.src.util import loggerutil
-from neutro.src.client.client_runner import Client
 
-client = Client()
 
-def save_block(height: int, block_json_string: str, block_hash: str):
+def save_block(client, height: int, block_json_string: str, block_hash: str):
     """saves a block and updates the list of height:hash for resolution of height from hash"""
     block_path = str(Path(__file__).parent.parent.parent) + \
         "/.data/{0}/blocks/".format(client.peer_host)
@@ -32,7 +30,7 @@ def save_block(height: int, block_json_string: str, block_hash: str):
 def load_block_by_height(height: int) -> str:
     """loads a block by height/number and returns the json-string of this block"""
     block_path = str(Path(__file__).parent.parent.parent) + \
-        "/.data/blocks/" + str(height) + ".block"
+        "/.data/{0}/blocks/".format(client.peer_host) + str(height) + ".block"
     if not os.path.isfile(block_path):
         loggerutil.error("could not load block for height " + str(height))
         raise ValueError("there is no block at height " + str(height))
@@ -44,7 +42,7 @@ def load_block_by_height(height: int) -> str:
 def load_block_by_hash(block_hash: str) -> str:
     """loads the height/number of a block from the dicionary, returns load_block_by_height(said height)"""
     hash_path = str(Path(__file__).parent.parent.parent) + \
-        "/.data/blocks/hash.dictionary"
+        "/.data/{0}/blocks/hash.dictionary".format(client.peer_host)
     # open the block_hash database
     if not os.path.isfile(hash_path):
         loggerutil.error("could not load the block_hash database")
@@ -64,9 +62,9 @@ def load_block_by_hash(block_hash: str) -> str:
         raise ValueError("error loading block_hash: " + str(e))
 
 
-def get_current_height() -> int:
+def get_current_height(peer_host) -> int:
     hash_path = str(Path(__file__).parent.parent.parent) + \
-        "/.data/{0}/blocks/hash.dictionary".format(client.peer_host)
+        "/.data/{0}/blocks/hash.dictionary".format(peer_host)
     # open the block_hash database
     if not os.path.isfile(hash_path):
         return -1

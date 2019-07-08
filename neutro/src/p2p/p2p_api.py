@@ -23,6 +23,8 @@ class P2P_API():
     def __init__(self):
         """creates an event manager object"""
         self.event_mg = EventManager()
+        self.connected_peer_list = {}
+        self.peers_dict = {}
 
     def init_peer(self):
         return self.create_a_peer(role='core', name='core', host=('0.0.0.0', 8015))
@@ -42,6 +44,7 @@ class P2P_API():
 
     def stop_peer_thread(self, peer):
         """stops a started peer thread"""
+        self.event_mg.error.set()
         time.sleep(5)
         peer.stop()
 
@@ -59,10 +62,15 @@ class P2P_API():
 
         # add a peer in the net
         self.join_peers(peer, peer2)
+        time.sleep(5)
+        self.connected_peer_list = self.list_peers_in_net(core_peer).keys()
+        self.peers_dict.update({peer.server_info.host: 0})
 
-        self.event_mg.block_received.set()
+        # self.event_mg.block_received.set()
 
     def update_chain(self, current_height):
+        loggerutil.debug("Current height {0}".format(current_height))
+        core_peer = self.init_peer()
         pass
 
     def update_tx_pool(self):
@@ -93,7 +101,7 @@ class P2P_API():
     def update_block_pool(self):
         pass
 
-    def list_peers_in_net(core: Peer) -> Dict[Tuple[str, int], PeerInfo]:
+    def list_peers_in_net(self, core: Peer) -> Dict[Tuple[str, int], PeerInfo]:
         """lists all peers currently available in the net"""
         return core.peer_pool
 

@@ -3,6 +3,7 @@ import pytest
 from neutro.src.chain import block
 from neutro.src.chain.block import Block
 from neutro.src.database import peer_block_database
+from neutro.src.client.client_runner import Client
 
 
 def test_block():
@@ -103,7 +104,8 @@ def test_block_height():
         # reset the database
         peer_block_database.remove_database()
 
-def test_save_multiple_blocks():
+
+def test_save_multiple_blocks(client):
     """save multiple blocks with different height"""
     prev_hash = "abc"
     transactions = ["a", "b", "c", "d", "e", "f"]
@@ -113,18 +115,18 @@ def test_save_multiple_blocks():
     try:
         # save block 1
         b1 = Block(prev_hash, transactions, miner,
-                   difficulty, nonce)
-        b1.peer_save()
+                   difficulty, nonce, client)
+        b1.peer_save(client)
         # save block 2
         b2 = Block(prev_hash, transactions, miner,
-                   difficulty, nonce)
-        b2.peer_save()
+                   difficulty, nonce, client)
+        b2.peer_save(client)
 
         with pytest.raises(ValueError):
             b2.height = 0
-            b2.peer_save()
+            b2.peer_save(client)
     finally:
-        # reset the database"
+        # reset the database
         peer_block_database.remove_database()
 
 
@@ -147,5 +149,4 @@ def test_get_current_height():
             assert peer_block_database.get_current_height() == i
     finally:
         peer_block_database.remove_database()
-
 
