@@ -20,6 +20,8 @@ class ShardBlock(object):
         ("time", int),
         ("miner", str),
 
+        ("miner_signature", str),
+        ("miner_nonce", str),
         ("tx_merkle_root", str),
         ("tx_list", str),
         ("tx_count", int)
@@ -31,6 +33,9 @@ class ShardBlock(object):
         self.height = 0  # TODO
         self.miner = miner
         self.time = int(time.time() * 1000)
+
+        self.miner_signature = ""
+        self.miner_nonce = 0
 
         if not tx_list or len(tx_list) == 0:
             self.tx_list = []
@@ -63,12 +68,16 @@ class ShardBlock(object):
         if not with_transaction_list:
             ret.pop("tx_list", None)
         else:
-            ret["tx_list"] = [tx.string() for tx in ret["tx_list"]]
+            ret["tx_list"] = [tx.json() for tx in ret["tx_list"]]
         return stringutil.dict_to_string(ret)
 
     def hash(self) -> str:
         """returns a hex string of the hash of this object"""
         return hashutil.hash_string(self.string())
+
+    def json(self) -> str:
+        """returns a json dict of this object"""
+        return json.loads(self.string(True))
 
     def get_tx_root(self) -> str:
         """returns the tx_merkle_root of this block"""
@@ -79,9 +88,13 @@ class ShardBlock(object):
         return self.height
 
 
-def from_json(json_block: str) -> ShardBlock:
-    """generates a block-object from a json-string"""
-    _dict = json.loads(json_block)
+def from_json(_json) -> ShardBlock:
+    """generates a shard-block-object from a json-string or json-dict"""
+    if type(_json) is str:
+        _dict = json.loads(_json)
+    else:
+        _dict = _json
+
     try:
         tx_list = [transaction.from_json(tx) for tx in _dict["tx_list"]]
     except KeyError:

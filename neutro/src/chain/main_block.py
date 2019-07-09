@@ -6,8 +6,11 @@ from neutro.src.util import loggerutil
 from neutro.src.util import hashutil
 from neutro.src.util import stringutil
 from neutro.src.trie.trie import Trie
+from neutro.src.chain import vote
 from neutro.src.chain.vote import Vote
+from neutro.src.chain import shard_block
 from neutro.src.chain.shard_block import ShardBlock
+from neutro.src.chain import voting_token_transaction
 from neutro.src.chain.voting_token_transaction import VotingTokenTransaction
 from neutro.src.database import block_database
 
@@ -57,7 +60,7 @@ class MainBlock(object):
         if not shard_list or len(shard_list) == 0:
             self.shard_list = []
         else:
-            self.shard_list = vote_list
+            self.shard_list = shard_list
         self.shard_trie = Trie([s.hash() for s in self.shard_list])
         self.shard_count = self.shard_trie.size()
         self.shard_merkle_root = self.shard_trie.root()
@@ -96,23 +99,27 @@ class MainBlock(object):
         if not with_vote_list:
             ret.pop("vote_list")
         else:
-            ret["vote_list"] = [v.string() for v in ret["vote_list"]]
+            ret["vote_list"] = [v.json() for v in ret["vote_list"]]
 
         if not with_shard_list:
             ret.pop("shard_list")
         else:
-            ret["shard_list"] = [s.string() for s in ret["shard_list"]]
+            ret["shard_list"] = [s.json() for s in ret["shard_list"]]
 
         if not with_vtx_list:
             ret.pop("vtx_list")
         else:
-            ret["vtx_list"] = [vtx.string() for vtx in ret["vtx_list"]]
+            ret["vtx_list"] = [vtx.json() for vtx in ret["vtx_list"]]
 
         return stringutil.dict_to_string(ret)
 
     def hash(self) -> str:
         """returns a hex string of the hash of this object"""
         return hashutil.hash_string(self.string())
+
+    def json(self) -> str:
+        """returns a json dict of this object"""
+        return json.loads(self.string())
 
     def get_prev_hash(self) -> str:
         return self.prev_hash
@@ -130,9 +137,12 @@ class MainBlock(object):
         return self.vtx_merkle_root
 
 
-def from_json(json_block: str) -> MainBlock:
-    """generates a main-block-object from a json-string"""
-    _dict = json.loads(json_block)
+def from_json(_json) -> MainBlock:
+    """generates a main-block-object from a json-string or json-dict"""
+    if type(_json) is str:
+        _dict = json.loads(_json)
+    else:
+        _dict = _json
 
     try:
         vote_list = [vote.from_json(v) for v in _dict["vote_list"]]
@@ -140,13 +150,13 @@ def from_json(json_block: str) -> MainBlock:
         vote_list = []
 
     try:
-        shard_list = [shard.from_json(s) for s in _dict["shard_list"]]
+        shard_list = [shard_block.from_json(s) for s in _dict["shard_list"]]
     except KeyError:
         shard_list = []
 
     try:
         vtx_list = [
-            voting_token_transaction.from_json for vtx in _dict["vtx_list"]]
+            voting_token_transaction.from_json(vtx) for vtx in _dict["vtx_list"]]
     except KeyError:
         vtx_list = []
 

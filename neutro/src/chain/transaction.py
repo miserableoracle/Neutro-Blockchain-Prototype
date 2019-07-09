@@ -49,6 +49,10 @@ class Transaction(object):
         """returns a hex string of the hash of this object"""
         return hashutil.hash_string(self.string())
 
+    def json(self) -> str:
+        """returns a json dict of this object"""
+        return json.loads(self.string())
+
     def get_sender(self) -> str:
         """returns sender address"""
         return self.sender
@@ -73,9 +77,13 @@ class Transaction(object):
         return self.signature
 
 
-def from_json(json_string: str) -> Transaction:
-    """generates a transaction-object from a json-string"""
-    _dict = json.loads(json_string)
+def from_json(_json) -> Transaction:
+    """generates a transaction-object from a json-string or json-dict"""
+    if type(_json) is str:
+        _dict = json.loads(_json)
+    else:
+        _dict = _json
+
     tx = Transaction(
         sender=_dict["sender"],
         receivers=_dict["receivers"],

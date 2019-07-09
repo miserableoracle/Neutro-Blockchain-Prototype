@@ -5,8 +5,8 @@ from neutro.src.util import stringutil
 from neutro.src.chain import main_block
 from neutro.src.chain import shard_block
 from neutro.src.chain.main_block import MainBlock
-from neutro.str.chain.vote import Vote
-from neutro.src.chain.transactin import Transaction
+from neutro.src.chain.vote import Vote
+from neutro.src.chain.transaction import Transaction
 from neutro.src.chain.shard_block import ShardBlock
 from neutro.src.chain.voting_token_transaction import VotingTokenTransaction
 
@@ -42,7 +42,7 @@ def test_main_block():
     assert mb.get_vtx_root() == stringutil.empty_root
 
 
-def test_main__from_json():
+def test_main_from_json():
     prev_hash = "1"
     miner = "2"
     difficulty = "3"
@@ -60,16 +60,58 @@ def test_main__from_json():
 
 
 def test_main_from_json_with_vote_list():
-    pass
+    prev_hash = "1"
+    miner = "2"
+    difficulty = "3"
+
+    mb = MainBlock(prev_hash, miner, difficulty, get_vote_list(10), [], [])
+    mb_copy = main_block.from_json(mb.string(True, False, False))
+
+    assert mb.string() == mb_copy.string()
+    assert mb.hash() == mb_copy.hash()
+    assert mb.vote_count == 10
+    assert mb_copy.vote_count == 10
 
 
 def test_main_from_json_with_shard_list():
-    pass
+    prev_hash = "1"
+    miner = "2"
+    difficulty = "3"
+
+    mb = MainBlock(prev_hash, miner, difficulty, [], get_shard_list(10), [])
+    mb_copy = main_block.from_json(mb.string(False, True, False))
+
+    assert mb.string() == mb_copy.string()
+    assert mb.string(True, True, True) == mb_copy.string(True, True, True)
+    assert mb.hash() == mb_copy.hash()
+    assert mb.shard_count == 10
+    assert mb_copy.shard_count == 10
 
 
 def test_main_from_json_with_vtx_list():
-    pass
+    prev_hash = "1"
+    miner = "2"
+    difficulty = "3"
+
+    mb = MainBlock(prev_hash, miner, difficulty, [], [], get_vtx_list(10))
+    mb_copy = main_block.from_json(mb.string(False, False, True))
+
+    assert mb.string() == mb_copy.string()
+    assert mb.string(True, True, True) == mb_copy.string(True, True, True)
+    assert mb.hash() == mb_copy.hash()
+    assert mb.vtx_count == 10
+    assert mb_copy.vtx_count == 10
 
 
 def test_main_from_json_with_all_lists():
-    pass
+    prev_hash = "1"
+    miner = "2"
+    difficulty = "3"
+
+    mb = MainBlock(prev_hash, miner, difficulty, get_vote_list(
+        10), get_shard_list(10), get_vtx_list(10))
+    mb_copy = main_block.from_json(mb.string(True, True, True))
+
+    assert mb.string() == mb_copy.string()
+    assert mb.string(True, True, True) == mb_copy.string(True, True, True)
+    assert mb.hash() == mb_copy.hash()

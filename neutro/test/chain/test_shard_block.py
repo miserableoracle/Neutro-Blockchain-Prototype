@@ -17,9 +17,9 @@ def test_shard_block():
     # time is automatically set, so we need to change it for the test
     sb.time = 1562228422767
 
-    assert sb.string() == '{"prev_main_hash": "1", "prev_shard_hash": "2", "height": 0, "time": 1562228422767, "miner": "3", "tx_merkle_root": "f1534392279bddbf9d43dde8701cb5be14b82f76ec6607bf8d6ad557f60f304e", "tx_count": 0}'
+    assert sb.string() == '{"prev_main_hash": "1", "prev_shard_hash": "2", "height": 0, "time": 1562228422767, "miner": "3", "miner_signature": "", "miner_nonce": 0, "tx_merkle_root": "f1534392279bddbf9d43dde8701cb5be14b82f76ec6607bf8d6ad557f60f304e", "tx_count": 0}'
     assert str(sb) == sb.string()
-    assert sb.hash() == "ba78db9a947358aa5a2f2fe9b8e90102982b7e28c9d58a856a88748b49a1325d"
+    assert sb.hash() == "ea26e47c9b0a6625180723b8545582f462a9e1d24b02a54c50bc629308efec4b"
     assert sb.get_tx_root() == stringutil.empty_root
 
 

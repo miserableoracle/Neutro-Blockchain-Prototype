@@ -50,20 +50,28 @@ class Vote(object):
         """returns a hex string of the hash of this object"""
         return hashutil.hash_string(self.string())
 
+    def json(self) -> str:
+        """returns a json dict of this object"""
+        return json.loads(self.string())
+
     def unsigned_hash(self) -> str:
         """creates an unsigned vote and returns a hash of it"""
         v = copy.copy(self)
         v.signature = ""
         return v.hash()
 
-    def get_sender_address(self) -> str:
+    def get_sender(self) -> str:
         """returns the sender of this vote"""
         return self.sender
 
 
-def from_json_string(json_string: str) -> Vote:
-    """generates a vote-object from a json-string"""
-    _dict = json.loads(json_string)
+def from_json(_json) -> Vote:
+    """generates a vote-object from a json-string or json-dict"""
+    if type(_json) is str:
+        _dict = json.loads(_json)
+    else:
+        _dict = _json
+
     v = Vote(
         prev_hash=_dict["prev_hash"],
         sender=_dict["sender"],

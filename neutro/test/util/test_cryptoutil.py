@@ -28,9 +28,8 @@ def test_sign_transaction():
     sender = cryptoutil.key_to_address(private_key.get_verifying_key())
     receivers = ["fe"]
     amounts = [1]
-    nonce = 1
     fee = 100
-    tx = Transaction(sender, receivers, amounts, nonce, fee)
+    tx = Transaction(sender, receivers, amounts, fee)
 
     # get the signature
     tx_sig = cryptoutil.get_transaction_sig(private_key, tx)
