@@ -4,8 +4,9 @@ from neutro.src.util import loggerutil
 
 
 class EventManager():
-	"""this class is just a holder object for all the events the p2p thread needs the client to know"""
-    __init__(self):
+    """this class is just a holder object for all the events the p2p thread needs the client to know"""
+
+    def __init__(self):
         # get data from the p2p
         self.block_received = Event()
         self.tx_received = Event()
@@ -20,3 +21,4 @@ class EventManager():
         # handle errors
         self.connection_lost = Event()
         self.error = Event()
+
