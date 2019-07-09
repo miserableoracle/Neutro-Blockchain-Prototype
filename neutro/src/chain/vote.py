@@ -1,7 +1,8 @@
 """
 this class represents a vote that can be broadcasted to the network
 
-the yellow paper of neutro states that peers get voting rights according to the amount of voting_tokens they posess
+the yellow paper of neutro states that peers get voting rights 
+according to the amount of voting_tokens they posess
 """
 import json
 import copy
@@ -46,8 +47,12 @@ class Vote(object):
         return stringutil.dict_to_string(ret)
 
     def hash(self) -> str:
-        """not the same as __hash__"""
+        """returns a hex string of the hash of this object"""
         return hashutil.hash_string(self.string())
+
+    def json(self) -> str:
+        """returns a json dict of this object"""
+        return json.loads(self.string())
 
     def unsigned_hash(self) -> str:
         """creates an unsigned vote and returns a hash of it"""
@@ -55,14 +60,18 @@ class Vote(object):
         v.signature = ""
         return v.hash()
 
-    def get_sender_address(self) -> str:
+    def get_sender(self) -> str:
         """returns the sender of this vote"""
         return self.sender
 
 
-def from_json_string(json_string: str) -> Vote:
-    """generates a vote-object from a json-string"""
-    _dict = json.loads(json_string)
+def from_json(_json) -> Vote:
+    """generates a vote-object from a json-string or json-dict"""
+    if type(_json) is str:
+        _dict = json.loads(_json)
+    else:
+        _dict = _json
+
     v = Vote(
         prev_hash=_dict["prev_hash"],
         sender=_dict["sender"],

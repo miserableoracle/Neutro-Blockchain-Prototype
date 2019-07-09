@@ -48,7 +48,7 @@ class Wallet(object):
 
     def sign_vote(self, vote):
         """signes a vote with this wallet"""
-        if vote.get_sender_address() != self.get_address():
+        if vote.get_sender() != self.get_address():
             raise ValueError(
                 "cannot sign vote where v.sender is different to this wallets address")
             loggerutil.info("could not sign vote " +
@@ -59,7 +59,7 @@ class Wallet(object):
         """
         signes the transaction with this wallet. Also updating the nonce.
         """
-        if transaction.get_sender_address() != self.get_address():
+        if transaction.get_sender() != self.get_address():
             raise ValueError(
                 "cannot sign transaction where tx.sender is different to this wallets address")
             loggerutil.info("could not sign transaction " +
@@ -72,35 +72,35 @@ class Wallet(object):
         transaction.signature = cryptoutil.get_transaction_sig(
             self.get_private_key(), transaction)
 
-    def sign_vt_transaction_sender(self, vt_transaction):
+    def sign_vtx_sender(self, vtx):
         """signs a voting token transaction with this wallet as sender"""
-        if vt_transaction.get_sender_address() != self.get_address():
+        if vtx.get_sender() != self.get_address():
             raise ValueError(
-                "cannot sign vt_transaction where tx.sender is different to this wallets address")
-            loggerutil.info("could not sign vt_transaction as sender" +
-                            vt_transaction.string() + " with wallet " + self.string())
-        vt_transaction.sender_nonce = self.nonce
+                "cannot sign vtx where tx.sender is different to this wallets address")
+            loggerutil.info("could not sign vtx as sender" +
+                            vtx.string() + " with wallet " + self.string())
+        vtx.sender_nonce = self.nonce
         # update and save nonce
         self.nonce += 1
 
         # set tx signature
-        vt_transaction.sender_signature = cryptoutil.get_transaction_sig(
-            self.get_private_key(), vt_transaction)
+        vtx.sender_signature = cryptoutil.get_transaction_sig(
+            self.get_private_key(), vtx)
 
-    def sign_vt_transaction_receiver(self, vt_transaction):
+    def sign_vtx_receiver(self, vtx):
         """signs a voting token transaction with this wallet as receiver"""
-        if vt_transaction.get_receiver_address() != self.get_address():
+        if vtx.get_receiver() != self.get_address():
             raise ValueError(
-                "cannot sign vt_transaction where tx.receiver is different to this wallets address")
-            loggerutil.info("could not sign vt_transaction as receiver" +
-                            vt_transaction.string() + " with wallet " + self.string())
-        vt_transaction.receiver_nonce = self.nonce
+                "cannot sign vtx where tx.receiver is different to this wallets address")
+            loggerutil.info("could not sign vtx as receiver" +
+                            vtx.string() + " with wallet " + self.string())
+        vtx.receiver_nonce = self.nonce
         # update and save nonce
         self.nonce += 1
 
         # set tx signature
-        vt_transaction.receiver_signature = cryptoutil.get_transaction_sig(
-            self.get_private_key(), vt_transaction)
+        vtx.receiver_signature = cryptoutil.get_transaction_sig(
+            self.get_private_key(), vtx)
 
 
 def generate_new_wallet() -> Wallet:

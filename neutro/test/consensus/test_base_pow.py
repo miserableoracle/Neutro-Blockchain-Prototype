@@ -2,8 +2,8 @@ import pytest
 
 import time
 from neutro.src.util import stringutil
-from neutro.src.chain import block
-from neutro.src.chain.block import Block
+from neutro.src.chain import main_block
+from neutro.src.chain.main_block import MainBlock
 from neutro.src.consensus.base_pow import Pow
 
 

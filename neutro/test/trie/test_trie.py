@@ -8,16 +8,15 @@ def test_trie():
         sender = "a" + str(i)
         receivers = [str(i)]
         amounts = [str(i + 100)]
-        nonce = i
         fee = 100 * i
-        txs.append(Transaction(sender, receivers, amounts, nonce, fee))
+        txs.append(Transaction(sender, receivers, amounts, fee))
     txs = [tx.hash() for tx in txs]
 
     trie = Trie(txs)
 
     assert trie.size() == 10
     trie_root = trie.root()
-    assert trie_root == "819208b7314e74647711cb43a22e518fea7d67541bd691ef7914a368883b43c6"
+    assert trie_root == "f12419db9e522427fa0fddff624b8d024becb4749fc75018dec2512048a21492"
 
 
 def test_trie_empty():

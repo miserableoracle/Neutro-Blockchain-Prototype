@@ -11,9 +11,8 @@ def test_pool():
     sender = "iWVjc8hWuRuePAv1X8nDZdcjKcqivDUH62YKhBXBHqp2yGfgeXyHJDj5XwCHwjWB6GevCjMYT59XSBiQvMYHQ4P"
     receivers = ["01", "02", "0a"]
     amounts = [1, 2, 3]
-    nonce = 1
     fee = 100
-    tx1 = Transaction(sender, receivers, amounts, nonce, fee)
+    tx1 = Transaction(sender, receivers, amounts, fee)
 
     p.add_transaction(tx1)
     assert p.get_size() == 1
@@ -22,9 +21,8 @@ def test_pool():
     sender = "iWVjc8hWuRuePAv1X8nDZdcjKcqivDUH62YKhBXBHqp2yGfgeXyHJDj5XwCHwjWB6GevCjMYT59XSBiQvMYHQ4P"
     receivers = ["01", "02", "0a"]
     amounts = [1, 2, 3]
-    nonce = 1
     fee = 100
-    tx2 = Transaction(sender, receivers, amounts, nonce, fee)
+    tx2 = Transaction(sender, receivers, amounts, fee)
 
     p.add_transaction(tx2)
 
@@ -46,9 +44,8 @@ def test_pool_multi_add_same_tx():
     sender = "iWVjc8hWuRuePAv1X8nDZdcjKcqivDUH62YKhBXBHqp2yGfgeXyHJDj5XwCHwjWB6GevCjMYT59XSBiQvMYHQ4P"
     receivers = ["01", "02", "0a"]
     amounts = [1, 2, 3]
-    nonce = 1
     fee = 100
-    tx = Transaction(sender, receivers, amounts, nonce, fee)
+    tx = Transaction(sender, receivers, amounts, fee)
 
     p.add_transaction(tx)
 
@@ -77,11 +74,11 @@ def test_pool_two_different_tx():
     sender = "iWVjc8hWuRuePAv1X8nDZdcjKcqivDUH62YKhBXBHqp2yGfgeXyHJDj5XwCHwjWB6GevCjMYT59XSBiQvMYHQ4P"
     receivers = ["01", "02", "0a"]
     amounts = [1, 2, 3]
-    nonce = 1
     fee = 100
-    tx1 = Transaction(sender, receivers, amounts, nonce, fee)
-    nonce = 2
-    tx2 = Transaction(sender, receivers, amounts, nonce, fee)
+    tx1 = Transaction(sender, receivers, amounts, fee)
+    tx1.nonce = 1
+    tx2 = Transaction(sender, receivers, amounts, fee)
+    tx2.nonce = 2
 
     p.add_transaction(tx1)
     p.add_transaction(tx2)
@@ -106,9 +103,8 @@ def test_pool_tx_string():
     sender = "iWVjc8hWuRuePAv1X8nDZdcjKcqivDUH62YKhBXBHqp2yGfgeXyHJDj5XwCHwjWB6GevCjMYT59XSBiQvMYHQ4P"
     receivers = ["01", "02", "0a"]
     amounts = [1, 2, 3]
-    nonce = 1
     fee = 100
-    tx = Transaction(sender, receivers, amounts, nonce, fee)
+    tx = Transaction(sender, receivers, amounts, fee)
 
     p.add_transaction(tx.string())
 

@@ -16,9 +16,9 @@ def test_vote():
     assert v.hash() == "c51224bc79c4b5b71b72007f5ddef375fbc4d35fa9dbbf3133635fc6363090d4"
 
 
-def test_vote_from_json_string():
+def test_vote_from_json():
     v = Vote("prev_hash", "sender", "nonce", "signature")
-    v_copy = vote.from_json_string(v.string())
+    v_copy = vote.from_json(v.string())
     assert v.prev_hash == v_copy.prev_hash
     assert v.sender == v_copy.sender
     assert v.nonce == v_copy.nonce
@@ -33,6 +33,8 @@ def test_sign_vote_valid():
     v = Vote(prev_hash, sender, nonce)
     w.sign_vote(v)
     assert cryptoutil.verify_vote_sig(v, v.signature, v.sender)
+    with pytest.raises(AssertionError):
+        cryptoutil.verify_vote_sig(v, "")
 
 
 def test_sign_vote_invalid_address():
