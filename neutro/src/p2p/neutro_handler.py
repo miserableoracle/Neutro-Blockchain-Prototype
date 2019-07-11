@@ -1,8 +1,7 @@
 from atomic_p2p.utils.communication import Handler, Packet
 from neutro.src.util import loggerutil
 
-from neutro.src.database.p2p_messages_database import store_messages
-from neutro.src.database.p2p_messages_database import get_messages
+from neutro.src.database.p2p_messages_database import store_messages, store_messages_details
 
 
 class NeutroHandler(Handler):
@@ -31,5 +30,11 @@ class NeutroHandler(Handler):
         self.peer.logger.info("src: {}, pkt: {}".format(src, pkt))
         self.callback(pkt.data)
         store_messages(src, pkt, pkt.data)
+        print("***********************")
+        print(src)
+        print(pkt.dst)
+        print(pkt.src)
+        print("***********************")
+        store_messages_details(src, pkt, pkt.data)
 
 

@@ -72,22 +72,9 @@ def test_send_broadcast():
 
     # wait for all threads to complete the join process
     time.sleep(5)
-
-    def json_string_transaction():
-        """base test for transaction"""
-        sender = "iWVjc8hWuRuePAv1X8nDZdcjKcqivDUH62YKhBXBHqp2yGfgeXyHJDj5XwCHwjWB6GevCjMYT59XSBiQvMYHQ4P"
-        receivers = ["01", "02", "0a"]
-        amounts = [1, 2, 3]
-        nonce = 1
-        fee = 100
-        tx = Transaction(sender, receivers, amounts, nonce, fee)
-
-        tx_string = tx.string()
-        return tx_string
-
-    json_string_transaction_message = json_string_transaction()
-
-    p2p_api.send_broadcast(node, node['core_1'], json_string_transaction_message)
+    print("test")
+    print(node)
+    p2p_api.send_broadcast(node['core_1'], 'StringToBeSent')
 
     time.sleep(5)
     for (key, val) in node.items():
@@ -95,32 +82,6 @@ def test_send_broadcast():
         time.sleep(2)
 
 
-def test_send_transaction_direct():
-    p2p_api = P2P_API()
-    peer_1 = p2p_api.create_a_peer(role='role', name='peer1', host=('0.0.0.0', 8000))
-    peer_2 = p2p_api.create_a_peer(role='role', name='peer2', host=('0.0.0.0', 8001))
-    p2p_api.join_peers(peer_1, peer_2)
-
-    time.sleep(4)
-
-    def json_string_transaction():
-        """base test for transaction"""
-        sender = "iWVjc8hWuRuePAv1X8nDZdcjKcqivDUH62YKhBXBHqp2yGfgeXyHJDj5XwCHwjWB6GevCjMYT59XSBiQvMYHQ4P"
-        receivers = ["01", "02", "0a"]
-        amounts = [1, 2, 3]
-        nonce = 1
-        fee = 100
-        tx = Transaction(sender, receivers, amounts, nonce, fee)
-
-        tx_string = tx.string()
-        return tx_string
-
-    p2p_api.json_string_transaction_message = json_string_transaction()
-    p2p_api.send_transaction_direct(p2p_api.json_string_transaction_message, peer_1, peer_2)
-
-    time.sleep(5)
-    p2p_api.stop_peer_thread(peer_1)
-    p2p_api.stop_peer_thread(peer_2)
 
 
 if __name__ == '__main__':

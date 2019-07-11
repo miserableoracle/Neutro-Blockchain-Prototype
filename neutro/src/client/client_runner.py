@@ -30,10 +30,9 @@ class Client(threading.Thread):
         self.stop = threading.Event()
         self.wallet = wallet_database.load_wallet()
         self.event_manager = self.p2p_api.event_mg
-        # specificy the peer from the peer_init if it is called with peer or otherwise specify here
+        # initiate the peer from the peer_init if it is called with peer or otherwise initiate here
         self.peer = peer_init or self.p2p_api.create_a_peer(role="myself", name=self.wallet.get_address(), host=("127.0.0.1", 8012))
         self.peer_host = self.peer.server_info.host
-        # self.connected_peers = self.p2p_api.list_peers_in_net(self.peer)
         self.pool = Pool()
         self.start()
 
@@ -89,14 +88,16 @@ class Client(threading.Thread):
         """
         # get data from the p2p
         if self.event_manager.block_received.isSet():
-            block = self.p2p_api.get_recv_block(self.peer)
-            loggerutil.debug("block received event is triggered")
-            print(block)
+            block = self.p2p_api.get_recv_block(self.peer_host)
+            loggerutil.debug("block received event is triggered by: {0}:".format(self.peer_host))
+            loggerutil.debug("Block string: {0}".format(block))
             # do stuff
             self.event_manager.block_received.clear()
 
         if self.event_manager.tx_received.isSet():
             tx = self.p2p_api.get_recv_tx()
+            loggerutil.debug("transaction received event is triggered by: {0}:".format(self.peer_host))
+            loggerutil.debug("Tx string: {0}".format(tx))
             # do stuff
             self.event_manager.tx_received.clear()
 
@@ -133,7 +134,7 @@ class Client(threading.Thread):
             self.event_manager.tx_pool_request.clear()
 
         if self.event_manager.bootstr_request.isSet():
-            from_block_number, to_block_number, reciever = p2p_api.get_requ_bootstr_numbers()
+            from_block_number, to_block_number, reciever = self.p2p_api.get_requ_bootstr_numbers()
             temp = []
             # fill temp with the blocks from and to
             self.p2p_api.send_bootstr(reciever, temp)

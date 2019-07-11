@@ -12,6 +12,7 @@ class Peer(AtomicP2PPeer):
 
     def process_sync_data(self, data):
         print("callback {}".format(data))
+        return data
 
     def _register_handler(self):
         super(Peer, self)._register_handler()
