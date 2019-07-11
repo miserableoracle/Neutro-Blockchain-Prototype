@@ -1,7 +1,5 @@
-import pytest
-
-from neutro.src.chain import block
-from neutro.src.chain.block import Block
+#from neutro.src.chain import block
+#from neutro.src.chain.block import Block
 from neutro.src.database import peer_block_database
 from neutro.src.client.client_runner import Client
 

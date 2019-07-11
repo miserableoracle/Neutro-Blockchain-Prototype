@@ -2,7 +2,7 @@ from neutro.src.client.client_runner import Client
 from neutro.src.p2p.p2p_api import P2P_API
 from neutro.src.chain.main_block import MainBlock
 from neutro.src.chain.transaction import Transaction
-from neutro.src.util import loggerutil
+from neutro.src.database.p2p_messages_database import remove_database
 import pytest
 import time
 
@@ -36,10 +36,14 @@ def test_clients_send_block_broadcast():
     time.sleep(10)
     # sends a broadcast message from client 1 to client 2
     p2p_api.send_broadcast(client_1.peer, json_string_message)
+    time.sleep(10)
     # sets block_received event
-    client_1.event_manager.block_received.set()
-
-    time.sleep(5)
+    client_2.event_manager.block_received.set()
+    assert client_2.p2p_api.get_recv_block(peer2.server_info.host) == json_string_message
+    time.sleep(3)
+    remove_database()
+    client_1.p2p_api.event_mg.error.set()
+    client_2.p2p_api.event_mg.error.set()
 
 
 def test_clients_send_tx_broadcast():
@@ -66,15 +70,18 @@ def test_clients_send_tx_broadcast():
         return tx.string()
 
     json_string_message = json_string_tx()
-    time.sleep(10)
+    time.sleep(15)
     # sends a broadcast message from client 1 to client 2
     p2p_api.send_broadcast(client_1.peer, json_string_message)
+    time.sleep(10)
     # sets block_received event
-    client_1.event_manager.tx_received.set()
-
-    time.sleep(5)
+    client_2.event_manager.tx_received.set()
+    assert client_2.p2p_api.get_recv_tx(peer2.server_info.host) == json_string_message
+    time.sleep(3)
+    remove_database()
+    client_1.p2p_api.event_mg.error.set()
+    client_2.p2p_api.event_mg.error.set()
 
 
 def test_update_chain():
     pass
-

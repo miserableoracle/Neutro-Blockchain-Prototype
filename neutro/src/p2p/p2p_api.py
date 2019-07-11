@@ -1,5 +1,6 @@
 import socket
 socket.SO_REUSEPORT = 15
+import json
 
 from typing import List, Tuple, Dict
 from atomic_p2p.peer.entity.peer_info import PeerInfo
@@ -15,7 +16,7 @@ import re
 import time
 from neutro.src.util import loggerutil
 from neutro.src.client.event_manager import EventManager
-from neutro.src.database.p2p_messages_database import get_messages
+from neutro.src.database.p2p_messages_database import get_messages, remove_database
 
 
 class P2P_API():
@@ -81,7 +82,8 @@ class P2P_API():
 
     def get_recv_block(self, peer_host):
         """ gets the stored message of the peer received by"""
-        return get_messages(peer_host)
+        json_get_message = json.dumps(get_messages(peer_host))
+        return json_get_message
 
     def get_requ_block_numbers(self):
         pass
@@ -89,8 +91,9 @@ class P2P_API():
     def get_requ_bootstr_numbers(self):
         pass
 
-    def get_recv_tx(self):
-        pass
+    def get_recv_tx(self, peer_host):
+        json_get_message = json.dumps(get_messages(peer_host))
+        return json_get_message
 
     def get_recv_tx_pool(self):
         pass
@@ -99,6 +102,9 @@ class P2P_API():
         pass
 
     def update_block_pool(self):
+        pass
+
+    def get_error_message(self):
         pass
 
     def list_peers_in_net(self, core: Peer) -> Dict[Tuple[str, int], PeerInfo]:

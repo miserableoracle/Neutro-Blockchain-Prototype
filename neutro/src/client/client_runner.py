@@ -95,7 +95,7 @@ class Client(threading.Thread):
             self.event_manager.block_received.clear()
 
         if self.event_manager.tx_received.isSet():
-            tx = self.p2p_api.get_recv_tx()
+            tx = self.p2p_api.get_recv_tx(self.peer_host)
             loggerutil.debug("transaction received event is triggered by: {0}:".format(self.peer_host))
             loggerutil.debug("Tx string: {0}".format(tx))
             # do stuff
@@ -148,7 +148,7 @@ class Client(threading.Thread):
 
         if self.event_manager.error.isSet():
             loggerutil.debug("error event is triggered")
-            loggerutil.error(self.p2p_api.get_error_message())
+            #loggerutil.error(self.p2p_api.get_error_message())
             # shut down the client after logging the error
             self.p2p_api.stop_peer_thread(self.peer)
             return True

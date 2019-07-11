@@ -29,12 +29,6 @@ class NeutroHandler(Handler):
         self.peer.logger.info("The packet has been received")
         self.peer.logger.info("src: {}, pkt: {}".format(src, pkt))
         self.callback(pkt.data)
-        store_messages(src, pkt, pkt.data)
-        print("***********************")
-        print(src)
-        print(pkt.dst)
-        print(pkt.src)
-        print("***********************")
-        store_messages_details(src, pkt, pkt.data)
+        store_messages(pkt.dst, pkt, pkt.data)
 
 

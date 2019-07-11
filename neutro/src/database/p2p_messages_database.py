@@ -1,7 +1,6 @@
-from pathlib import Path
-from typing import List
 import ast
-from neutro.src.util import loggerutil
+import shutil
+from pathlib import Path
 
 
 def store_messages(src, packet, message):
@@ -32,3 +31,9 @@ def get_messages(src):
     except FileNotFoundError:
         print("There is no message stored for {0}".format(src))
 
+
+def remove_database():
+    """removes all messages, this is just for testing purposes"""
+    block_path = str(Path(__file__).parent.parent.parent) + \
+        "/.data/messages/"
+    shutil.rmtree(block_path)
