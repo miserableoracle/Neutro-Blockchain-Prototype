@@ -19,14 +19,14 @@ class NeutroHandler(Handler):
             "msg": msg
         }
 
-        self.peer.logger.info("The packet is being sent")
+        self.peer.logger.info("The packet is being sent to {0}".format(target))
         return Packet(dst=target, src=self.peer.server_info.host,
                       _hash=self.peer._hash, _type=type(self).pkt_type, _data=
                       data)
 
     def on_recv_pkt(self, src, pkt, conn):
         data = pkt.data
-        self.peer.logger.info("The packet has been received")
+        self.peer.logger.info("The packet in {0} has been received from {1}".format(pkt.dst, src))
         self.peer.logger.info("src: {}, pkt: {}".format(src, pkt))
         self.callback(pkt.data)
         store_messages(pkt.dst, pkt, pkt.data)

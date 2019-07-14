@@ -24,23 +24,26 @@ import time
 class Client(threading.Thread):
     """this class does all the previously described tasks"""
 
-    def __init__(self, peer_init=None):
+    def __init__(self, peer_init, connected_to=None):
         threading.Thread.__init__(self)
         self.p2p_api = P2P_API()
         self.stop = threading.Event()
         self.wallet = wallet_database.load_wallet()
         self.event_manager = self.p2p_api.event_mg
         # initiate the peer from the peer_init if it is called with peer or otherwise initiate here
-        self.peer = peer_init or self.p2p_api.create_a_peer(role="myself", name=self.wallet.get_address(), host=("127.0.0.1", 8012))
+        self.peer = peer_init # or self.p2p_api.create_a_peer(role="myself", name=self.wallet.get_address(), host=("127.0.0.1", 8012))
         self.peer_host = self.peer.server_info.host
         self.pool = Pool()
         self.start()
+
+        if connected_to is not None:
+            self.connect_to = connected_to
 
     def run(self):
         loggerutil.debug("client started")
 
         # blocking call, connects this peer to other known peers
-        self.p2p_api.connect(self.peer)
+        self.p2p_api.connect(self.peer, self.connect_to)
 
         loggerutil.debug("client connected")
 
@@ -147,8 +150,8 @@ class Client(threading.Thread):
             self.event_manager.connection_lost.clear()
 
         if self.event_manager.error.isSet():
-            loggerutil.debug("error event is triggered")
-            #loggerutil.error(self.p2p_api.get_error_message())
+            loggerutil.debug("shutdown event is triggered")
+            # loggerutil.error(self.p2p_api.get_error_message())
             # shut down the client after logging the error
             self.p2p_api.stop_peer_thread(self.peer)
             return True

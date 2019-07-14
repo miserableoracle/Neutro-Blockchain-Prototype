@@ -13,13 +13,17 @@ def test_clients_send_block_broadcast():
     p2p_api = P2P_API()
     # creates a peer named core
     peer = p2p_api.create_a_peer(role='core', name='core', host=('0.0.0.0', 8000))
+    dummy_peer = p2p_api.create_a_peer(role="sw", name="switch_1", host=("127.0.0.1", 8011))
     # creates an instance of Client with the specified peer above
-    client_1 = Client(peer)
+    client_1 = Client(peer, dummy_peer)
 
     # creates a peer named switch_2 with the role sw
     peer2 = p2p_api.create_a_peer(role='sw', name='switch_2', host=('0.0.0.0', 8012))
-    # creates a Client with the specified peer above
-    client_2 = Client(peer2)
+    # creates a Client with the specified peer above and connect it to the peer of client 1
+    client_2 = Client(peer2, client_1.peer)
+    peer3 = p2p_api.create_a_peer(role='sw', name='switch_3', host=('0.0.0.0', 8013))
+    # creates a Client with the specified peer above and connect it to the peer of client 1
+    client_3 = Client(peer3, client_1.peer)
 
     def json_string_block():
         """creates a main block for testing purposes"""
@@ -39,11 +43,14 @@ def test_clients_send_block_broadcast():
     time.sleep(10)
     # sets block_received event
     client_2.event_manager.block_received.set()
+    client_3.event_manager.block_received.set()
     assert client_2.p2p_api.get_recv_block(peer2.server_info.host) == json_string_message
+    assert client_3.p2p_api.get_recv_block(peer3.server_info.host) == json_string_message
     time.sleep(3)
     remove_database()
     client_1.p2p_api.event_mg.error.set()
     client_2.p2p_api.event_mg.error.set()
+    client_3.p2p_api.event_mg.error.set()
 
 
 def test_clients_send_tx_broadcast():
@@ -52,13 +59,19 @@ def test_clients_send_tx_broadcast():
     p2p_api = P2P_API()
     # creates a peer named core
     peer = p2p_api.create_a_peer(role='core', name='core', host=('0.0.0.0', 8000))
+    # creates a dummy peer for testing purposes
+    dummy_peer = p2p_api.create_a_peer(role="sw", name="switch_1", host=("127.0.0.1", 8011))
     # creates an instance of Client with the specified peer above
-    client_1 = Client(peer)
+    client_1 = Client(peer, dummy_peer)
 
     # creates a peer named switch_2 with the role sw
     peer2 = p2p_api.create_a_peer(role='sw', name='switch_2', host=('0.0.0.0', 8012))
-    # creates a Client with the specified peer above
-    client_2 = Client(peer2)
+    # creates a Client with the specified peer above and connect it to the peer of client 1
+    client_2 = Client(peer2, client_1.peer)
+    # creates a peer named switch_3 with the role sw
+    peer3 = p2p_api.create_a_peer(role='sw', name='switch_3', host=('0.0.0.0', 8013))
+    # creates a Client with the specified peer above and connect it to the peer of client 1
+    client_3 = Client(peer3, client_1.peer)
 
     def json_string_tx():
         """creates a main block for testing purposes"""
@@ -76,6 +89,7 @@ def test_clients_send_tx_broadcast():
     time.sleep(10)
     # sets block_received event
     client_2.event_manager.tx_received.set()
+    client_3.event_manager.tx_received.set()
     assert client_2.p2p_api.get_recv_tx(peer2.server_info.host) == json_string_message
     time.sleep(3)
     remove_database()
@@ -85,3 +99,4 @@ def test_clients_send_tx_broadcast():
 
 def test_update_chain():
     pass
+

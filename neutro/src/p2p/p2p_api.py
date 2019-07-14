@@ -134,7 +134,7 @@ class P2P_API():
                 from_node.server_info.name, direct_nodes_of_a)
             return direct_nodes_of_a
 
-        direct_nodes_of(from_node.server_info.name)
+        direct_nodes_of(from_node)
 
         def indirect_nodes_of(node_a: str):
             """returns and stores a list of hosts indirectly connected to a given node"""
