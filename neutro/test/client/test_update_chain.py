@@ -63,7 +63,7 @@ def test_clients_send_block_broadcast():
     client_2 = Client(create_blockchain(3), peer2, client_1.peer)
     peer3 = p2p_api.create_a_peer(role='sw', name='switch_3', host=('0.0.0.0', 8013))
     # creates a Client with the specified peer above and connect it to the peer of client 1
-    client_3 = Client(create_blockchain(3) , peer3, client_1.peer)
+    client_3 = Client(create_blockchain(3), peer3, client_1.peer)
 
     def json_string_block():
         """creates a main block for testing purposes"""
@@ -150,8 +150,11 @@ def test_update_chain():
     # creates a peer named switch_2 with the role sw
     peer2 = p2p_api.create_a_peer(role='sw', name='switch_2', host=('0.0.0.0', 8012))
     # creates a Client with the specified peer above and connect it to the peer of client 1
-    client_2 = Client(create_blockchain(12), peer2, client_1.peer)
+    client_2 = Client(create_blockchain(16), peer2, client_1.peer)
     # creates a peer named switch_3 with the role sw
     peer3 = p2p_api.create_a_peer(role='sw', name='switch_3', host=('0.0.0.0', 8013))
     # creates a Client with the specified peer above and connect it to the peer of client 1
     client_3 = Client(create_blockchain(15), peer3, client_1.peer)
+
+if __name__ == '__main__':
+    test_update_chain()

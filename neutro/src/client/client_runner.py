@@ -126,10 +126,15 @@ class Client(threading.Thread):
             self.event_manager.height_request.clear()
 
         if self.event_manager.block_request.isSet():
-            # returns list of block numbers
+            # returns list of requested block numbers
             number_list = self.p2p_api.get_requ_block_numbers()
-            for number in number_list:
-                self.p2p_api.send_block(number, the_block_to_number)
+            # get the highest block from the number list
+            last_num_from_list = number_list[-1]
+            # check if the highest blockchain of a client is the same as from the list
+            if len(self.chain) == last_num_from_list:
+                # send the blocks that are missing from smaller chains
+                for number in number_list:
+                    self.p2p_api.send_block(number, self.chain[number-1])
             # do stuff
             self.event_manager.block_request.clear()
 

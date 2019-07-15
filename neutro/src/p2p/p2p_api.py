@@ -26,6 +26,8 @@ class P2P_API():
         """creates an event manager object"""
         self.event_mg = EventManager()
         self.client_chains = {}
+        self.numbers_block = []
+        self.client_chains_string = {}
 
     def init_peer(self):
         return self.create_a_peer(role="sw", name="switch_1", host=("127.0.0.1", 8011))
@@ -72,18 +74,17 @@ class P2P_API():
         self.event_mg.height_request.set()
 
         # for each client in the network get the current height from db
-        # store it as a dictionary
+        # store it as a dictionary with host as a key and their height as a value
         for host in client_net:
             self.client_chains.update({host: get_client_chain_height(host)})
 
-        for k, other_height in self.client_chains.items():
+        # go over all of the clients in the net
+        for other_host, other_height in self.client_chains.items():
+            # check their height against the actual client height
             if other_height > client_height:
+                self.numbers_block = list(range(client_height+1, other_height+1))
+                self.event_mg.block_request.set()
                 #ToDo: send bootstrap broadcast from client_height+1 to other_height
-                # how to get the blocks?
-                height_difference = other_height - client_height
-                print(height_difference)
-                self.event_mg.bootstr_request.set()
-                #self.event_mg.bootstr_received.set()
 
     def update_tx_pool(self):
         pass
@@ -97,7 +98,7 @@ class P2P_API():
         return json_get_message
 
     def get_requ_block_numbers(self):
-        pass
+        return self.numbers_block
 
     def get_requ_bootstr_numbers(self):
         pass
@@ -176,4 +177,6 @@ class P2P_API():
         """sends a set of blocks (min to max) for broadcasting"""
         return blocks
 
+    def send_block(self, number, the_block_to_number):
+        self.client_chains.update({number: the_block_to_number})
 
