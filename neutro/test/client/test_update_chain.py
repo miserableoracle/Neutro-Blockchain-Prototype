@@ -5,6 +5,46 @@ from neutro.src.chain.transaction import Transaction
 from neutro.src.database.p2p_messages_database import remove_database
 import pytest
 import time
+import datetime as date
+from neutro.src.util import loggerutil
+
+
+def create_blockchain(blocks):
+
+    def create_genesis_block():
+        # manually constructs a block with height 0 and an arbitrary previous hash
+        mb = MainBlock(0, "0", "1", "3", [], [], [])
+        mb.time = 1562228422767
+        return mb
+
+    def next_block(last_block):
+        # Generate all later blocks in the blockchain
+        current_height = last_block.height + 1
+        #current_hash = last_block.hash # ToDo: fix hash error from main_block?
+        mb = MainBlock(current_height, current_height, "3", "4", [], [], [])
+        mb.time = 1562228422767
+        return mb
+
+    # Create the blockchain and add the genesis block
+    blockchain = [create_genesis_block()]
+
+    previous_block = blockchain[0]
+
+    print("Hash: {0}\n".format(blockchain[0].hash()))
+
+    num_of_blocks_to_add = blocks
+
+    # Add blocks to the chain
+    for i in range(0, num_of_blocks_to_add):
+        block_to_add = next_block(previous_block)
+        print(block_to_add)
+        blockchain.append(block_to_add)
+        previous_block = block_to_add
+        print("Block #{0} has been added to the blockchain!".format(block_to_add.height))
+        print("Hash: {0}\n".format(blockchain[i].hash()))
+
+    #print(*blockchain, sep="\n")
+    return blockchain
 
 
 def test_clients_send_block_broadcast():
@@ -15,15 +55,15 @@ def test_clients_send_block_broadcast():
     peer = p2p_api.create_a_peer(role='core', name='core', host=('0.0.0.0', 8000))
     dummy_peer = p2p_api.create_a_peer(role="sw", name="switch_1", host=("127.0.0.1", 8011))
     # creates an instance of Client with the specified peer above
-    client_1 = Client(peer, dummy_peer)
+    client_1 = Client(create_blockchain(2), peer, dummy_peer)
 
     # creates a peer named switch_2 with the role sw
     peer2 = p2p_api.create_a_peer(role='sw', name='switch_2', host=('0.0.0.0', 8012))
     # creates a Client with the specified peer above and connect it to the peer of client 1
-    client_2 = Client(peer2, client_1.peer)
+    client_2 = Client(create_blockchain(3), peer2, client_1.peer)
     peer3 = p2p_api.create_a_peer(role='sw', name='switch_3', host=('0.0.0.0', 8013))
     # creates a Client with the specified peer above and connect it to the peer of client 1
-    client_3 = Client(peer3, client_1.peer)
+    client_3 = Client(create_blockchain(3) , peer3, client_1.peer)
 
     def json_string_block():
         """creates a main block for testing purposes"""
@@ -62,16 +102,16 @@ def test_clients_send_tx_broadcast():
     # creates a dummy peer for testing purposes
     dummy_peer = p2p_api.create_a_peer(role="sw", name="switch_1", host=("127.0.0.1", 8011))
     # creates an instance of Client with the specified peer above
-    client_1 = Client(peer, dummy_peer)
+    client_1 = Client(create_blockchain(2), peer, dummy_peer)
 
     # creates a peer named switch_2 with the role sw
     peer2 = p2p_api.create_a_peer(role='sw', name='switch_2', host=('0.0.0.0', 8012))
     # creates a Client with the specified peer above and connect it to the peer of client 1
-    client_2 = Client(peer2, client_1.peer)
+    client_2 = Client(create_blockchain(2), peer2, client_1.peer)
     # creates a peer named switch_3 with the role sw
     peer3 = p2p_api.create_a_peer(role='sw', name='switch_3', host=('0.0.0.0', 8013))
     # creates a Client with the specified peer above and connect it to the peer of client 1
-    client_3 = Client(peer3, client_1.peer)
+    client_3 = Client(create_blockchain(2), peer3, client_1.peer)
 
     def json_string_tx():
         """creates a main block for testing purposes"""
@@ -98,5 +138,20 @@ def test_clients_send_tx_broadcast():
 
 
 def test_update_chain():
-    pass
+    # creates a P2P_API object
+    p2p_api = P2P_API()
+    # creates a peer named core
+    peer = p2p_api.create_a_peer(role='core', name='core', host=('0.0.0.0', 8000))
+    # creates a dummy peer for testing purposes
+    dummy_peer = p2p_api.create_a_peer(role="sw", name="switch_1", host=("127.0.0.1", 8011))
+    # creates an instance of Client with the specified peer above
+    client_1 = Client(create_blockchain(10), peer, dummy_peer)
 
+    # creates a peer named switch_2 with the role sw
+    peer2 = p2p_api.create_a_peer(role='sw', name='switch_2', host=('0.0.0.0', 8012))
+    # creates a Client with the specified peer above and connect it to the peer of client 1
+    client_2 = Client(create_blockchain(12), peer2, client_1.peer)
+    # creates a peer named switch_3 with the role sw
+    peer3 = p2p_api.create_a_peer(role='sw', name='switch_3', host=('0.0.0.0', 8013))
+    # creates a Client with the specified peer above and connect it to the peer of client 1
+    client_3 = Client(create_blockchain(15), peer3, client_1.peer)

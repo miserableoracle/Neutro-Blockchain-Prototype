@@ -15,7 +15,7 @@ p2p
 
 import threading
 from neutro.src.util import loggerutil
-from neutro.src.database import wallet_database, block_database, peer_block_database
+from neutro.src.database import wallet_database
 from neutro.src.client.transaction_pool import Pool
 from neutro.src.p2p.p2p_api import P2P_API
 import time
@@ -24,7 +24,7 @@ import time
 class Client(threading.Thread):
     """this class does all the previously described tasks"""
 
-    def __init__(self, peer_init, connected_to=None):
+    def __init__(self, chain, peer_init, connected_to=None):
         threading.Thread.__init__(self)
         self.p2p_api = P2P_API()
         self.stop = threading.Event()
@@ -34,6 +34,7 @@ class Client(threading.Thread):
         self.peer = peer_init # or self.p2p_api.create_a_peer(role="myself", name=self.wallet.get_address(), host=("127.0.0.1", 8012))
         self.peer_host = self.peer.server_info.host
         self.pool = Pool()
+        self.chain = chain
         self.start()
 
         if connected_to is not None:
@@ -48,8 +49,11 @@ class Client(threading.Thread):
         loggerutil.debug("client connected")
 
         #  blocking call
-        current_height = peer_block_database.get_current_height(self.peer_host)
-        block_list = self.p2p_api.update_chain(current_height)
+        current_height = len(self.chain) - 1
+
+        client_net = self.p2p_api.list_peers_in_net(self.peer)
+        loggerutil.debug("Client with host {0} - Current state of the net {1}".format(self.peer_host, client_net))
+        block_list = self.p2p_api.update_chain(current_height, self.peer_host, client_net)
 
         # non blocking
         self.p2p_api.update_block_pool()
@@ -116,7 +120,8 @@ class Client(threading.Thread):
 
         # give data to the p2p
         if self.event_manager.height_request.isSet():
-            self.p2p_api.send_height(my_height)
+            client_height = len(self.chain) - 1
+            self.p2p_api.send_height(self.peer_host, client_height)
             # do stuff
             self.event_manager.height_request.clear()
 

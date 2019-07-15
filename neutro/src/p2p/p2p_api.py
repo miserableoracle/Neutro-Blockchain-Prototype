@@ -17,6 +17,7 @@ import time
 from neutro.src.util import loggerutil
 from neutro.src.client.event_manager import EventManager
 from neutro.src.database.p2p_messages_database import get_messages, remove_database
+from neutro.src.database.client_chain_heights_database import store_client_chain_height, get_client_chain_height
 
 
 class P2P_API():
@@ -24,8 +25,7 @@ class P2P_API():
     def __init__(self):
         """creates an event manager object"""
         self.event_mg = EventManager()
-        self.connected_peer_list = {}
-        self.peers_dict = {}
+        self.client_chains = {}
 
     def init_peer(self):
         return self.create_a_peer(role="sw", name="switch_1", host=("127.0.0.1", 8011))
@@ -64,21 +64,32 @@ class P2P_API():
         # add a peer in the net
         self.join_peers(peer, peer2)
         time.sleep(5)
-        self.connected_peer_list = self.list_peers_in_net(core_peer).keys()
-        self.peers_dict.update({peer.server_info.host: 0})
 
         # self.event_mg.block_received.set()
 
-    def update_chain(self, current_height):
-        loggerutil.debug("Current height {0}".format(current_height))
-        core_peer = self.init_peer()
-        pass
+    def update_chain(self, client_height, client_host, client_net):
+        # trigger height request of the client
+        self.event_mg.height_request.set()
+
+        # for each client in the network get the current height from db
+        # store it as a dictionary
+        for host in client_net:
+            self.client_chains.update({host: get_client_chain_height(host)})
+
+        for k, other_height in self.client_chains.items():
+            if other_height > client_height:
+                #ToDo: send bootstrap broadcast from client_height+1 to other_height
+                # how to get the blocks?
+                height_difference = other_height - client_height
+                print(height_difference)
+                self.event_mg.bootstr_request.set()
+                #self.event_mg.bootstr_received.set()
 
     def update_tx_pool(self):
         pass
 
-    def send_height(self, height):
-        return height
+    def send_height(self, client_host, client_height):
+        store_client_chain_height(client_host, client_height)
 
     def get_recv_block(self, peer_host):
         """ gets the stored message of the peer received by"""
@@ -109,10 +120,10 @@ class P2P_API():
 
     def list_peers_in_net(self, core: Peer) -> Dict[Tuple[str, int], PeerInfo]:
         """lists all peers currently available in the net"""
-        return core.peer_pool
+        return core.peer_pool.keys()
 
     def send_broadcast(self, from_node, json_message: str):
-        """broadcasts a new transaction to a subnet"""
+        """broadcasts a new message to a subnet"""
 
         def direct_nodes_of(node_a_hostname: str) -> List[str]:
             """returns and stores a list of hosts directly connected to a given node"""
@@ -157,7 +168,7 @@ class P2P_API():
         # send a broadcast transaction message from core to all the directly
         # connected nodes
         from_node.handler_broadcast_packet(
-            host=(None, "sw"), pkt_type=NeutroHandler.pkt_type, **{
+            host=(None, "all"), pkt_type=NeutroHandler.pkt_type, **{
                 "msg": json_message
             })
 

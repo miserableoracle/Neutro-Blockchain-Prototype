@@ -13,6 +13,7 @@ from neutro.src.chain.shard_block import ShardBlock
 from neutro.src.chain import voting_token_transaction
 from neutro.src.chain.voting_token_transaction import VotingTokenTransaction
 from neutro.src.database import block_database
+import hashlib as hasher
 
 
 class MainBlock(object):
@@ -41,9 +42,9 @@ class MainBlock(object):
         ("next_shard_producers", List[str])
     ]
 
-    def __init__(self, prev_hash: str, miner: str, difficulty: str, vote_list: List[Vote], shard_list: List[ShardBlock], vtx_list=List[VotingTokenTransaction]):
+    def __init__(self, height: int, prev_hash: str, miner: str, difficulty: str, vote_list: List[Vote], shard_list: List[ShardBlock], vtx_list=List[VotingTokenTransaction]):
         self.prev_hash = prev_hash
-        self.height = 0  # TODO
+        self.height = height  # TODO
         self.miner = miner
         self.time = int(time.time() * 1000)
         self.difficulty = difficulty
