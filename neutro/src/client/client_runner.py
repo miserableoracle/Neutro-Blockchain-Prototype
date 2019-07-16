@@ -16,7 +16,7 @@ p2p
 import threading
 from neutro.src.util import loggerutil
 from neutro.src.database import wallet_database
-from neutro.src.client.transaction_pool import Pool
+from neutro.src.client.transaction_pool import TxPool
 from neutro.src.p2p.p2p_api import P2P_API
 import time
 
@@ -30,10 +30,13 @@ class Client(threading.Thread):
         self.stop = threading.Event()
         self.wallet = wallet_database.load_wallet()
         self.event_manager = self.p2p_api.event_mg
-        # initiate the peer from the peer_init if it is called with peer or otherwise initiate here
-        self.peer = peer_init # or self.p2p_api.create_a_peer(role="myself", name=self.wallet.get_address(), host=("127.0.0.1", 8012))
+        # initiate the peer from the peer_init if it is called with peer or
+        # otherwise initiate here
+        # or self.p2p_api.create_a_peer(role="myself",
+        # name=self.wallet.get_address(), host=("127.0.0.1", 8012))
+        self.peer = peer_init
         self.peer_host = self.peer.server_info.host
-        self.pool = Pool()
+        self.pool = TxPool()
         self.chain = chain
         self.start()
 
@@ -52,8 +55,10 @@ class Client(threading.Thread):
         current_height = len(self.chain) - 1
 
         client_net = self.p2p_api.list_peers_in_net(self.peer)
-        loggerutil.debug("Client with host {0} - Current state of the net {1}".format(self.peer_host, client_net))
-        block_list = self.p2p_api.update_chain(current_height, self.peer_host, client_net)
+        loggerutil.debug(
+            "Client with host {0} - Current state of the net {1}".format(self.peer_host, client_net))
+        block_list = self.p2p_api.update_chain(
+            current_height, self.peer_host, client_net)
 
         # non blocking
         self.p2p_api.update_block_pool()
@@ -96,14 +101,16 @@ class Client(threading.Thread):
         # get data from the p2p
         if self.event_manager.block_received.isSet():
             block = self.p2p_api.get_recv_block(self.peer_host)
-            loggerutil.debug("block received event is triggered by: {0}:".format(self.peer_host))
+            loggerutil.debug(
+                "block received event is triggered by: {0}:".format(self.peer_host))
             loggerutil.debug("Block string: {0}".format(block))
             # do stuff
             self.event_manager.block_received.clear()
 
         if self.event_manager.tx_received.isSet():
             tx = self.p2p_api.get_recv_tx(self.peer_host)
-            loggerutil.debug("transaction received event is triggered by: {0}:".format(self.peer_host))
+            loggerutil.debug(
+                "transaction received event is triggered by: {0}:".format(self.peer_host))
             loggerutil.debug("Tx string: {0}".format(tx))
             # do stuff
             self.event_manager.tx_received.clear()
@@ -130,11 +137,12 @@ class Client(threading.Thread):
             number_list = self.p2p_api.get_requ_block_numbers()
             # get the highest block from the number list
             last_num_from_list = number_list[-1]
-            # check if the highest blockchain of a client is the same as from the list
+            # check if the highest blockchain of a client is the same as from
+            # the list
             if len(self.chain) == last_num_from_list:
                 # send the blocks that are missing from smaller chains
                 for number in number_list:
-                    self.p2p_api.send_block(number, self.chain[number-1])
+                    self.p2p_api.send_block(number, self.chain[number - 1])
             # do stuff
             self.event_manager.block_request.clear()
 
@@ -171,4 +179,3 @@ class Client(threading.Thread):
     def send_event_manager(self):
         """returns event_manager object of client"""
         self.p2p_api.em(self.event_manager)
-
