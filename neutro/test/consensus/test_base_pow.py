@@ -10,12 +10,11 @@ from neutro.src.consensus.base_pow import Pow
 def test_pow_easy():
     # test pow with easy difficulty
     prev_hash = "0"
-    transactions = ["00af"]
     miner = "abcdef"
     difficulty = "00ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-    nonce = "0000000000000000"
-    b = Block(prev_hash, transactions, miner,
-              difficulty, nonce)
+    b = MainBlock(prev_hash, miner,
+                  difficulty, [], [], [])
+    b.height = 0
     p = Pow(b)
     p.start()
     p.join()
@@ -26,12 +25,10 @@ def test_pow_easy():
 def test_pow_hard():
     # test pow with hard difficulty
     prev_hash = "0"
-    transactions = ["00af"]
     miner = "abcdef"
     difficulty = "0000ffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-    nonce = "0000000000000000"
-    b = Block(prev_hash, transactions, miner,
-              difficulty, nonce)
+    b = MainBlock(prev_hash, miner,
+                  difficulty, [], [], [])
     p = Pow(b)
     p.start()
     p.join()
@@ -42,12 +39,10 @@ def test_pow_hard():
 def test_pow_interrupt():
     # test pow with hard difficulty and interrupt the thread
     prev_hash = "0"
-    transactions = ["00af"]
     miner = "abcdef"
     difficulty = "00000000ffffffffffffffffffffffffffffffffffffffffffffffffffffffff"
-    nonce = "0000000000000000"
-    b = Block(prev_hash, transactions, miner,
-              difficulty, nonce)
+    b = MainBlock(prev_hash, miner,
+                  difficulty, [], [], [])
     p = Pow(b)
     p.start()
 

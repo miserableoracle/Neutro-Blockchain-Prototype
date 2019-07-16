@@ -1,5 +1,5 @@
 from neutro.src.cli.commands.base import Base
-from neutro.src.chain.transaction import from_json_string
+from neutro.src.chain.transaction import from_json
 from neutro.src.database import wallet_database
 
 
