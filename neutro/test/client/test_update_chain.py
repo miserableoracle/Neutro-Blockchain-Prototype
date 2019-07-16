@@ -13,7 +13,8 @@ def create_blockchain(blocks):
 
     def create_genesis_block():
         # manually constructs a block with height 0 and an arbitrary previous hash
-        mb = MainBlock(0, "0", "1", "3", [], [], [])
+        mb = MainBlock("0", "1", "3", [], [], [])
+        mb.height = 0
         mb.time = 1562228422767
         return mb
 
@@ -21,7 +22,8 @@ def create_blockchain(blocks):
         # Generate all later blocks in the blockchain
         current_height = last_block.height + 1
         #current_hash = last_block.hash # ToDo: fix hash error from main_block?
-        mb = MainBlock(current_height, current_height, "3", "4", [], [], [])
+        mb = MainBlock(current_height, "3", "4", [], [], [])
+        mb.height = current_height
         mb.time = 1562228422767
         return mb
 

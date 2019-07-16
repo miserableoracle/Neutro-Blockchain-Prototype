@@ -8,7 +8,6 @@ from cryptography.fernet import Fernet
 
 
 class AnonymousTransaction(Transaction):
-    pass
 
     def generate_key(self) -> bytes:
         """ generates a new random key"""

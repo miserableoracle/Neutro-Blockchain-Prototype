@@ -42,9 +42,9 @@ class MainBlock(object):
         ("next_shard_producers", List[str])
     ]
 
-    def __init__(self, height: int, prev_hash: str, miner: str, difficulty: str, vote_list: List[Vote], shard_list: List[ShardBlock], vtx_list=List[VotingTokenTransaction]):
+    def __init__(self, prev_hash: str, miner: str, difficulty: str, vote_list: List[Vote], shard_list: List[ShardBlock], vtx_list=List[VotingTokenTransaction]):
         self.prev_hash = prev_hash
-        self.height = height  # TODO
+        self.height = 0  # TODO
         self.miner = miner
         self.time = int(time.time() * 1000)
         self.difficulty = difficulty
