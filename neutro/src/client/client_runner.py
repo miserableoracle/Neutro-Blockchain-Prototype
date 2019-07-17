@@ -20,61 +20,123 @@ datastructure
 """
 
 import threading
+from neutro.src.chain import *
+from neutro.src.chain.main_block import MainBlock
+from neutro.src.chain.shard_block import ShardBlock
+from neutro.src.chain.vote import Vote
+from neutro.src.chain.transaction import Transaction
+from neutro.src.chain.voting_token_transaction import VotingTokenTransaction
 from neutro.src.util import loggerutil
+from neutro.src.util.wallet import Wallet
 from neutro.src.database import wallet_database
+from neutro.src.database import block_database
+from neutro.src.client.vote_pool import VotePool
 from neutro.src.client.block_pool import BlockPool
-from neutro.src.client.transaction_pool import TxPool
+from neutro.src.client.transaction_pool import TransactionPool
 from neutro.src.p2p.p2p_api import P2P_API
+from neutro.src.p2p.peer import Peer
 import time
+from enum import Enum
+from .event_manager import EventManager
+
+
+class State(Enum):
+    DEFAULT = -1
+    UPDATING = 0
+    WAITING = 1
+    MINING = 2
 
 
 class Client(threading.Thread):
     """this class does all the previously described tasks"""
 
-    def __init__(self, chain, peer_init, connected_to=None):
-        threading.Thread.__init__(self)
-        self.p2p_api = P2P_API()
-        self.stop = threading.Event()
-        self.wallet = wallet_database.load_wallet()
-        self.event_manager = self.p2p_api.event_mg
-        # initiate the peer from the peer_init if it is called with peer or
-        # otherwise initiate here
-        # or self.p2p_api.create_a_peer(role="myself",
-        # name=self.wallet.get_address(), host=("127.0.0.1", 8012))
-        self.peer = peer_init
-        self.peer_host = self.peer.server_info.host
-        self.pool = TxPool()
-        self.chain = chain
-        self.start()
+    fields = [
+        ("wallet", Wallet),
+        ("p2p_api", P2P_API),
 
-        if connected_to is not None:
-            self.connect_to = connected_to
+        ("vote_pool", VotePool),
+        ("tx_pool", TransactionPool),
+        ("vtx_pool", TransactionPool),
+        ("main_block_pool", BlockPool),
+        ("shard_block_pool", BlockPool),
+
+        ("event_manager", EventManager),
+        ("event_stop", threading.Event),
+
+        ("state", State),
+
+        ("current_difficulty", str),
+
+        ("current_height", int),
+        ("stable_height", int),
+        ("last_fork_height", int),
+    ]
+
+    def __init__(self):
+        threading.Thread.__init__(self)
+        self.wallet = wallet_database.load_wallet()
+        self.p2p_api = P2P_API()
+
+        self.vote_pool = VotePool()
+        self.tx_pool = TransactionPool()
+        self.vtx_pool = TransactionPool()
+        self.main_block_pool = BlockPool()
+        self.shard_block_pool = BlockPool()
+
+        self.event_manager = self.p2p_api.event_mg
+        self.stop = threading.Event()
+
+        self.state = State.DEFAULT
+
+        # self.start()
+
+    def connect(self, connect_to_peer: Peer=None):
+        """
+        lets you connect to a peer 
+        or connects you to the list of peers in the config file
+        """
+        if connect_to_peer:
+            self.p2p_api.connect(connect_to_peer)
+        else:
+            for peer_to_connect_to in configuration.get_peer_list():
+                self.p2p_api.connect(peer_to_connect_to)
 
     def run(self):
-        loggerutil.debug("client started")
+        """method required by threading to start a thread"""
+        loggerutil.info("client update started")
+        self.update()
+        loggerutil.info("client update complete")
+
+        loggerutil.info("client started")
+        self.loop()
+        loggerutil.info("client stopped")
+
+    def update(self):
+        """updates a client to the current state of the network"""
+        self.state = State.UPDATING
+
+        # blocking calls
+        self.current_difficulty = p2p_api.get_current_difficulty()
+        self.current_height = p2p_api.get_current_height()
+        # get last stable chain height
+        # (stable means no forks and 7 confirmations)
+        self.stable_height = block_database.get_stable_height()
 
         # blocking call, connects this peer to other known peers
-        self.p2p_api.connect(self.peer, self.connect_to)
+        self.connect()
 
         loggerutil.debug("client connected")
-
-        #  blocking call
-        self.current_height = len(self.chain) - 1
 
         # blocking call
         client_net = self.p2p_api.list_peers_in_net(self.peer)
         loggerutil.debug(
             "Client with host {0} - Current state of the net {1}".format(self.peer_host, client_net))
+
+        # init all the pools
+
         # blocking call only returns list of missing blocks
         block_list = self.p2p_api.update_chain(
             self.current_height, self.peer_host, client_net)
-
-        # init all the pools
-        self.vote_pool = VotePool()
-        self.tx_pool = TxPool()
-        self.vtx_pool = TxPool()
-        self.main_block_pool = BlockPool()
-        self.shard_block_pool = BlockPool()
 
         # go over all the blocks that came along since this client was last
         # online
@@ -94,9 +156,6 @@ class Client(threading.Thread):
         # here we should be finished with the update of the client (except for
         # all blocks in pool and tx in pool)
 
-        loggerutil.debug("client setup complete")
-        self.loop()
-
     def loop(self):
         """this method loops for ever until it is stopped by force or with the "stop" event"""
         while True:
@@ -106,13 +165,6 @@ class Client(threading.Thread):
             if self.manage_events():
                 loggerutil.debug("shutting down client due to an error")
                 break
-
-            # the client basically is a state transition machine
-            # the states are:
-            #   -w8ing for shards
-            #   -pow when shards are there
-            #   -generating a shard if this client has been selected
-            # and it votes for the first block published
 
     def validate_block(block: str) -> bool:
         """a lot of steps to validate if a block is correct"""
@@ -135,26 +187,16 @@ class Client(threading.Thread):
             loggerutil.debug(
                 "block received event is triggered by: {0}:".format(self.peer_host))
             loggerutil.debug("Block string: {0}".format(block))
-            handle_new_block()
             self.event_manager.block_received.clear()
+            handle_new_block(block)
 
         if self.event_manager.tx_received.isSet():
             tx = self.p2p_api.get_recv_tx(self.peer_host)
             loggerutil.debug(
                 "transaction received event is triggered by: {0}:".format(self.peer_host))
             loggerutil.debug("Tx string: {0}".format(tx))
-            # do stuff
             self.event_manager.tx_received.clear()
-
-        if self.event_manager.tx_pool_received.isSet():
-            tx_pool = self.p2p_api.get_recv_tx_pool()
-            # do stuff
-            self.event_manager.tx_pool_received.clear()
-
-        if self.event_manager.bootstr_received.isSet():
-            bootstr = self.p2p_api.get_recv_bootstr()
-            # do stuff
-            self.event_manager.bootstr_received.clear()
+            handle_new_tx(tx)
 
         # give data to the p2p
         if self.event_manager.height_request.isSet():
@@ -186,15 +228,15 @@ class Client(threading.Thread):
             self.event_manager.tx_pool_request.clear()
 
         if self.event_manager.bootstr_request.isSet():
-            from_block_number, to_block_number, reciever = self.p2p_api.get_requ_bootstr_numbers()
+            from_block_number, to_block_number, receiver = self.p2p_api.get_requ_bootstr_numbers()
             temp = []
             # fill temp with the blocks from and to
-            self.p2p_api.send_bootstr(reciever, temp)
+            self.p2p_api.send_bootstr(receiver, temp)
             # do stuff
             self.event_manager.bootstr_request.clear()
 
         if self.event_manager.connection_lost.isSet():
-            # reconnect maybe ?
+            # reconnect maybe ? (probably not till milestone 4)
             # do stuff
             self.event_manager.connection_lost.clear()
 
@@ -207,9 +249,37 @@ class Client(threading.Thread):
 
         return False
 
-    def send_event_manager(self):
-        """returns event_manager object of client"""
-        self.p2p_api.em(self.event_manager)
+    def handle_new_block(self, block):
+        """handles blocks received from the p2p network"""
+        if isinstance(block, MainBlock):
+            handle_new_main_block(block)
+        elif isinstance(block, ShardBlock):
+            handle_new_shard_block(block)
+        else:
+            loggerutil.error(
+                "received block that was neither main nor shard block")
 
     def handle_new_main_block(self, main_block: MainBlock):
-        self.main_block_pool[self.current_height].append(main_block)
+        self.main_block_pool.add_block(main_block)
+        loggerutil.debug("got new main_block: " + main_block.str())
+
+    def handle_new_shard_block(self, shard_block: ShardBlock):
+        self.shard_block_pool.add_block(shard_block)
+        loggerutil.debug("got new shard_block: " + shard_block.str())
+
+    def handle_new_tx(self, tx):
+        """handles tx received from the p2p network"""
+        if isinstance(tx, Transaction):
+            handle_new_transaction(tx)
+        elif isinstance(tx, VotingTokenTransaction):
+            handle_new_vtx(tx)
+        else:
+            loggerutil.error("received tx that was neither tx nor vtx")
+
+    def handle_new_transaction(self, tx: Transaction):
+        self.tx_pool.add_transaction(tx)
+        loggerutil.debug("got new tx: " + tx.str())
+
+    def handle_new_vtx(self, vtx: VotingTokenTransaction):
+        self.vtx_pool.add_transaction(tx)
+        loggerutil.debug("got new vtx: " + vtx.str())

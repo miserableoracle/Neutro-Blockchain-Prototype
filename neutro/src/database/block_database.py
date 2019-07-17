@@ -62,7 +62,7 @@ def load_block_by_hash(block_hash: str) -> str:
         raise ValueError("error loading block_hash: " + str(e))
 
 
-def get_current_height() -> int:
+def get_stable_height() -> int:
     hash_path = str(Path(__file__).parent.parent.parent) + \
         "/.data/blocks/hash.dictionary"
     # open the block_hash database

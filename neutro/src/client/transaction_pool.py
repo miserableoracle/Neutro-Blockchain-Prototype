@@ -7,7 +7,7 @@ from neutro.src.util import hashutil
 from neutro.src.chain.transaction import Transaction
 
 
-class TxPool():
+class TransactionPool():
     """this class implements a transaction pool and the required functionality"""
 
     def __init__(self):

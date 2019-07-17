@@ -1,10 +1,10 @@
 import pytest
-from neutro.src.client.transaction_pool import TxPool
+from neutro.src.client.transaction_pool import TransactionPool
 from neutro.src.chain.transaction import Transaction
 
 
 def test_pool():
-    p = TxPool()
+    p = TransactionPool()
     assert p.get_size() == 0
     assert p.get_transactions() == []
 
@@ -37,7 +37,7 @@ def test_pool():
 
 
 def test_pool_multi_add_same_tx():
-    p = TxPool()
+    p = TransactionPool()
     assert p.get_size() == 0
     assert p.get_transactions() == []
 
@@ -69,7 +69,7 @@ def test_pool_multi_add_same_tx():
 
 
 def test_pool_two_different_tx():
-    p = TxPool()
+    p = TransactionPool()
 
     sender = "iWVjc8hWuRuePAv1X8nDZdcjKcqivDUH62YKhBXBHqp2yGfgeXyHJDj5XwCHwjWB6GevCjMYT59XSBiQvMYHQ4P"
     receivers = ["01", "02", "0a"]
@@ -99,7 +99,7 @@ def test_pool_two_different_tx():
 
 
 def test_pool_tx_string():
-    p = TxPool()
+    p = TransactionPool()
     sender = "iWVjc8hWuRuePAv1X8nDZdcjKcqivDUH62YKhBXBHqp2yGfgeXyHJDj5XwCHwjWB6GevCjMYT59XSBiQvMYHQ4P"
     receivers = ["01", "02", "0a"]
     amounts = [1, 2, 3]

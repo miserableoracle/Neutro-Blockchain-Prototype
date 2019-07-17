@@ -51,11 +51,15 @@ Assumptions that needed to be made that the paper dose not state.
         - blocks are stored as /blocks/{block_height}.block
         - block_hash(es) are linked to block_height in /blocks/hash.dictionary
 
+-client:
+    -a block is deemed stable (confirmed) if there are 7 blocks after it and tere are no forks in that time
 
 Possible Optimisations and also help wanted:
     -database
         -restructure all the db stuff so we acually have a database
             -rework to use something like mongodb (or maybe something that is "light" and not so powerfull as mongodb)
+            -another idea: mariaDB
+                -there is a python library for mariadb(https://mariadb.com/resources/blog/how-to-connect-python-programs-to-mariadb/)
     -make client smarter
         -start mining wehn not all shards are there (because 2/3 +1 shards are a valid block)
     -rework consensus so that there is no downtime for tx throuput while mining main block
