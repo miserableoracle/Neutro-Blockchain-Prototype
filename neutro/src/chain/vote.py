@@ -21,14 +21,12 @@ class Vote(object):
     fields = [
         ("prev_hash", str),
         ("sender", str),
-        ("nonce", str),
         ("signature", str)
     ]
 
-    def __init__(self, prev_hash: str, sender: str, nonce: str, signature: str=""):
+    def __init__(self, prev_hash: str, sender: str, signature: str=""):
         self.prev_hash = prev_hash
         self.sender = sender
-        self.nonce = nonce
         self.signature = signature
 
     def __str__(self) -> str:
@@ -75,7 +73,6 @@ def from_json(_json) -> Vote:
     v = Vote(
         prev_hash=_dict["prev_hash"],
         sender=_dict["sender"],
-        nonce=_dict["nonce"],
         signature=_dict["signature"]
     )
     return v

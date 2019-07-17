@@ -12,7 +12,7 @@ from neutro.src.chain.voting_token_transaction import VotingTokenTransaction
 
 
 def get_vote_list(_range):
-    return [Vote("a" + str(i), "b" + str(i), [i], "sig" + str(i)) for i in range(_range)]
+    return [Vote("a" + str(i), "b" + str(i), "sig" + str(i)) for i in range(_range)]
 
 
 def get_shard_list(_range):
