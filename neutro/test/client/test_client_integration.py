@@ -53,13 +53,28 @@ def test_update_chain_two_clients():
     assert c1.current_height == 99
     assert c1.current_height == c2.current_height
 
+    c1.stop()
+    c2.stop()
+
 
 def test_publish_new_block():
     c1 = Client()
     c1.difficulty = "0"
     c1.start()
-    # w8 for the client to start up and start mining
+    # w8 for the client 1 to start up
     while c1.state == State.UPDATING:
         pass
 
     c2 = Client()
+    c2.connect(c1)
+    c2.start()
+    # w8 for the client 2 to start up
+    while c2.state == State.UPDATING
+        pass
+
+    assert c1.difficulty == c2.difficulty
+    assert c1.current_height == c2.current_height
+    assert c1.stable_height == c2.stable_heigh
+
+    c1.stop()
+    c2.stop()
