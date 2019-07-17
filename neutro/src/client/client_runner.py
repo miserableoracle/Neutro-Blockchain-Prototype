@@ -11,11 +11,18 @@ PoW
 p2p
     -broadcast and send blocks and tx to other nodes
     -receive requests (event manager)
+
+datastructure
+    -the client keeps some of the current chain in memory (at least till block -7)
+    -it keeps it in a dictionary of lists of blocks, with the key beeing the height
+        -dict(height:List[MainBlock])
+
 """
 
 import threading
 from neutro.src.util import loggerutil
 from neutro.src.database import wallet_database
+from neutro.src.client.block_pool import BlockPool
 from neutro.src.client.transaction_pool import TxPool
 from neutro.src.p2p.p2p_api import P2P_API
 import time
@@ -52,23 +59,42 @@ class Client(threading.Thread):
         loggerutil.debug("client connected")
 
         #  blocking call
-        current_height = len(self.chain) - 1
+        self.current_height = len(self.chain) - 1
 
+        # blocking call
         client_net = self.p2p_api.list_peers_in_net(self.peer)
         loggerutil.debug(
             "Client with host {0} - Current state of the net {1}".format(self.peer_host, client_net))
+        # blocking call only returns list of missing blocks
         block_list = self.p2p_api.update_chain(
-            current_height, self.peer_host, client_net)
+            self.current_height, self.peer_host, client_net)
 
-        # non blocking
+        # init all the pools
+        self.vote_pool = VotePool()
+        self.tx_pool = TxPool()
+        self.vtx_pool = TxPool()
+        self.main_block_pool = BlockPool()
+        self.shard_block_pool = BlockPool()
+
+        # go over all the blocks that came along since this client was last
+        # online
+        for b in block_list:
+            self.main_block_pool.add_block(b)
+
+        # not blocking call because peers could have different versions of the
+        # pool, makes the p2p api request blocks from different peers and send
+        # them all to this client
         self.p2p_api.update_block_pool()
 
-        # not blocking call because 2 peers could have different versions of
-        # the pool
+        # not blocking call because peers could have different versions of the
+        # pool, makes the p2p api request blocks from different peers and send
+        # them all to this client
         self.p2p_api.update_tx_pool()
 
-        # loggerutil.debug("client init update")
+        # here we should be finished with the update of the client (except for
+        # all blocks in pool and tx in pool)
 
+        loggerutil.debug("client setup complete")
         self.loop()
 
     def loop(self):
@@ -81,7 +107,12 @@ class Client(threading.Thread):
                 loggerutil.debug("shutting down client due to an error")
                 break
 
-            # start of the pow
+            # the client basically is a state transition machine
+            # the states are:
+            #   -w8ing for shards
+            #   -pow when shards are there
+            #   -generating a shard if this client has been selected
+            # and it votes for the first block published
 
     def validate_block(block: str) -> bool:
         """a lot of steps to validate if a block is correct"""
@@ -104,7 +135,7 @@ class Client(threading.Thread):
             loggerutil.debug(
                 "block received event is triggered by: {0}:".format(self.peer_host))
             loggerutil.debug("Block string: {0}".format(block))
-            # do stuff
+            handle_new_block()
             self.event_manager.block_received.clear()
 
         if self.event_manager.tx_received.isSet():
@@ -179,3 +210,6 @@ class Client(threading.Thread):
     def send_event_manager(self):
         """returns event_manager object of client"""
         self.p2p_api.em(self.event_manager)
+
+    def handle_new_main_block(self, main_block: MainBlock):
+        self.main_block_pool[self.current_height].append(main_block)

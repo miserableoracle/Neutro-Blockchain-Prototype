@@ -59,7 +59,7 @@ def test_pow_interrupt():
 
     assert p.isInterrupted()
     # w8 100 ms (10 should be sufficciant, but we want to be sure)
-    # for the thread to stop (should be enough)
+    # for the thread to stop
     # normally one would use p.join(), but the test ensures that it dosent
     # take ages to interrupt the mining
     time.sleep(100 / 1000)
