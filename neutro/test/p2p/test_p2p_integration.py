@@ -81,3 +81,14 @@ def test_update_vtx_pool():
 def test_send_vote_pool():
 	pass
 	# tbd later
+
+
+def test_api_set_get_block_event():
+	api1
+	api2
+
+	api1.connect(api2)
+
+	api1.get_block(100)
+
+	assert api2.event_mgr.get_block.isSet()
