@@ -9,6 +9,7 @@ def test_peer_integration()
 
     p1.send("hi")
 
+    time.sleep(100 / 1000)
     assert p2.handler.last_msg == "hi"
 
 
@@ -20,11 +21,11 @@ def test_multiple_peer_chain_integration()
     p5 = Peer("0.0.0.0:50505")
     p6 = Peer("0.0.0.0:50506")
 
-    p1.connect(p2)
-    p2.connect(p3)
-    p3.connect(p4)
-    p4.connect(p5)
-    p5.connect(p6)
+    p1.connect(p2.endpoint)
+    p2.connect(p3.endpoint)
+    p3.connect(p4.endpoint)
+    p4.connect(p5.endpoint)
+    p5.connect(p6.endpoint)
 
     p1.send("hi")
 
@@ -41,11 +42,11 @@ def test_mesh_peer_integration()
     p5 = Peer("0.0.0.0:50505")
     p6 = Peer("0.0.0.0:50506")
 
-    p1.connect(p2)
-    p2.connect(p3)
-    p3.connect(p4)
-    p3.connect(p5)
-    p5.connect(p6)
+    p1.connect(p2.endpoint)
+    p2.connect(p3.endpoint)
+    p3.connect(p4.endpoint)
+    p3.connect(p5.endpoint)
+    p5.connect(p6.endpoint)
 
     p3.send("hi")
 

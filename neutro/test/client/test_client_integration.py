@@ -38,13 +38,15 @@ def test_update_chain():
     c1 = Client()
     # set the main_block_pool
     c1.main_block_pool = get_main_block_pool()
+    c1.height = 99
     c1.start()
 
     # create client 2
     c2 = Client()
     # connect to c1
-    c2.connect(c1.peer)
+    c2.connect(c1.peer.endpoint)
     # start c2, this should update_chain c2
+    c2.height = 0
     c2.start()
 
     # w8 for 10 secs
@@ -118,4 +120,12 @@ def test_client_state_transition_and_shard_generation()
     c1.stop()
 
 
-def test_updat
+def test_update_chain_with_forks()
+    c1
+    c2
+
+    c3.connect(c1.peer.endpoint)
+    c3.connect(c2.peer.endpoint)
+
+    assert c1.height == c3.height
+    assert c2.height == c3.height

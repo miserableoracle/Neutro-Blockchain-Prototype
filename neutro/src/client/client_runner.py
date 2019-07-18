@@ -69,7 +69,7 @@ class Client(threading.Thread):
 
         ("current_height", int),
         ("stable_height", int),
-        ("last_fork_height", int),
+        ("last_fork_height", int)
     ]
 
     def __init__(self):
