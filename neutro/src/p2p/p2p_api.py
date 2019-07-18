@@ -1,23 +1,23 @@
+from neutro.src.database.client_chain_heights_database import store_client_chain_height, get_client_chain_height
+from neutro.src.database.p2p_messages_database import get_messages, remove_database
+from neutro.src.client.event_manager import EventManager
+from neutro.src.util import loggerutil
+import time
+import re
+from neutro.src.p2p.neutro_handler import NeutroHandler
+from neutro.src.p2p.peer import Peer
+from neutro.src.database.peer_database import get_neighbors
+from neutro.src.database.peer_database import store_neighbors
+from atomic_p2p.utils.security import self_hash as sh, create_self_signed_cert
+from os.path import join
+from os import getcwd
+import os
+from atomic_p2p.peer.monitor import Monitor
+from atomic_p2p.peer.entity.peer_info import PeerInfo
+from typing import List, Tuple, Dict
+import json
 import socket
 socket.SO_REUSEPORT = 15
-import json
-
-from typing import List, Tuple, Dict
-from atomic_p2p.peer.entity.peer_info import PeerInfo
-import os
-from os import getcwd
-from os.path import join
-from atomic_p2p.utils.security import self_hash as sh, create_self_signed_cert
-from neutro.src.database.peer_database import store_neighbors
-from neutro.src.database.peer_database import get_neighbors
-from neutro.src.p2p.peer import Peer
-from neutro.src.p2p.neutro_handler import NeutroHandler
-import re
-import time
-from neutro.src.util import loggerutil
-from neutro.src.client.event_manager import EventManager
-from neutro.src.database.p2p_messages_database import get_messages, remove_database
-from neutro.src.database.client_chain_heights_database import store_client_chain_height, get_client_chain_height
 
 
 class P2P_API():
@@ -37,8 +37,10 @@ class P2P_API():
         self_hash = sh(join(os.getcwd()))
 
         # Peers must have the same certificate
-        cert = create_self_signed_cert(getcwd(), 'data/certificate.pem', 'data/private.key')
-        peer = Peer(host=host, name=name, role=role, cert=cert, _hash=self_hash)
+        cert = create_self_signed_cert(
+            getcwd(), 'data/certificate.pem', 'data/private.key')
+        peer = Peer(host=host, name=name, role=role,
+                    cert=cert, _hash=self_hash)
         peer.start()
         # time.sleep(10)
         # peer.stop()
@@ -82,7 +84,8 @@ class P2P_API():
         for other_host, other_height in self.client_chains.items():
             # check their height against the actual client height
             if other_height > client_height:
-                self.numbers_block = list(range(client_height+1, other_height+1))
+                self.numbers_block = list(
+                    range(client_height+1, other_height+1))
                 self.event_mg.block_request.set()
                 #ToDo: send bootstrap broadcast from client_height+1 to other_height
 
@@ -179,4 +182,3 @@ class P2P_API():
 
     def send_block(self, number, the_block_to_number):
         self.client_chains.update({number: the_block_to_number})
-

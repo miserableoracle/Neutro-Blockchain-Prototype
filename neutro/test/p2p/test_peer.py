@@ -1,7 +1,8 @@
 from neutro.src.p2p.peer import Peer
+import time
 
 
-def test_peer_integration()
+def test_peer_integration():
     p1 = Peer("0.0.0.0:50505")
     p2 = Peer("0.0.0.0:50506")
 
@@ -13,7 +14,7 @@ def test_peer_integration()
     assert p2.handler.last_msg == "hi"
 
 
-def test_multiple_peer_chain_integration()
+def test_multiple_peer_chain_integration():
     p1 = Peer("0.0.0.0:50501")
     p2 = Peer("0.0.0.0:50502")
     p3 = Peer("0.0.0.0:50503")
@@ -34,7 +35,7 @@ def test_multiple_peer_chain_integration()
     assert p6.handler.last_msg == "hi"
 
 
-def test_mesh_peer_integration()
+def test_mesh_peer_integration():
     p1 = Peer("0.0.0.0:50501")
     p2 = Peer("0.0.0.0:50502")
     p3 = Peer("0.0.0.0:50503")
@@ -57,5 +58,5 @@ def test_mesh_peer_integration()
     assert p6.handler.last_msg == "hi"
 
 
-def test_another_thing()
+def test_another_thing():
     pass

@@ -61,6 +61,8 @@ class Client(threading.Thread):
         ("shard_block_pool", BlockPool),
 
         ("event_manager", EventManager),
+        # Todo: 'event_stop' doesn't match with further usage of 'stop'
+        # Should be 'stop' instead of 'event_stop' ?
         ("event_stop", threading.Event),
 
         ("state", State),
@@ -87,12 +89,12 @@ class Client(threading.Thread):
         self.stop = threading.Event()
 
         self.state = State.DEFAULT
-
+        # Todo: Probably need current_height, current_difficulty, stable_height, last_fork_height Attributes here as well ?
         # self.start()
 
-    def connect(self, connect_to_peer: Peer=None):
+    def connect(self, connect_to_peer: Peer = None):
         """
-        lets you connect to a peer 
+        lets you connect to a peer
         or connects you to the list of peers in the config file
         """
         if connect_to_peer:
@@ -116,8 +118,8 @@ class Client(threading.Thread):
         self.state = State.UPDATING
 
         # blocking calls
-        self.current_difficulty = p2p_api.get_current_difficulty()
-        self.current_height = p2p_api.get_current_height()
+        self.current_difficulty = self.p2p_api.get_current_difficulty()
+        self.current_height = self.p2p_api.get_current_height()
         # get last stable chain height
         # (stable means no forks and 7 confirmations)
         self.stable_height = block_database.get_stable_height()
