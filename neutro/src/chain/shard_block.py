@@ -55,6 +55,17 @@ class ShardBlock(object):
         """returns an int as hash of this object"""
         return int(self.hash(), 16)
 
+    def __eq__(self, other) -> bool:
+        """
+        checks for equality
+        this is not 100% correct because theoretically 2 diferent entities 
+        could have the same hash, but in that case the whole concept of 
+        Blockchain breaks, so this is of no relevance for now
+        """
+        if not isinstance(other, ShardBlock):
+            return False
+        return self.hash() == other.hash()
+
     def string(self, with_transaction_list=False) -> str:
         """
         returns a json-string of itself
