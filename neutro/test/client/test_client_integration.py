@@ -33,7 +33,7 @@ def get_main_block_pool():
     return pool
 
 
-def test_update_chain_two_clients():
+def test_update_chain():
     # start the client that acts as network
     c1 = Client()
     # set the main_block_pool
@@ -57,7 +57,7 @@ def test_update_chain_two_clients():
     c2.stop()
 
 
-def test_publish_new_block():
+def test_update_metadata():
     c1 = Client()
     c1.difficulty = "0"
     c1.start()
@@ -69,7 +69,7 @@ def test_publish_new_block():
     c2.connect(c1)
     c2.start()
     # w8 for the client 2 to start up
-    while c2.state == State.UPDATING
+    while c2.state == State.UPDATING:
         pass
 
     assert c1.difficulty == c2.difficulty
@@ -78,3 +78,44 @@ def test_publish_new_block():
 
     c1.stop()
     c2.stop()
+
+
+def test_client_state_transition_and_shard_generation()
+    c1 = Client()
+    p1 = Peer()
+
+    c1.connect(p1)
+    c1.start()
+
+    m = MainBlock("prev_hash", "miner", "difficulty", [], [], [])
+    m.next_shard_producers = ["address1", "address2",
+                              c1.wallet.get_address(), "address4", "address5", "address6"]
+    m.height = 0
+    p1.send_main_block(m)
+
+    while c1.state == State.UPDATING:
+        pass
+    assert c1.state == State.WAITING
+
+    sb1 = ShardBlock(m.hash(), "0", "address1", [])
+    p1.send_shard_block(sb1)
+
+    time.sleep(100 / 1000)
+    assert c1.shard_block_pool.contains(sb1)
+    assert c1.state == State.WAITING
+
+    sb2 = ShardBlock(m.hash(), sb1.hash(), "address2", [])
+    sb2.height = 1
+    p1.send_shard_block(sb2)
+
+    time.sleep(100 / 1000)
+    assert c1.shard_block_pool.contains(sb1)
+    assert c1.shard_block_pool.contains(sb2)
+
+    # etc. would be nice to test like this
+
+    # assert that shard 3 is from c1
+    c1.stop()
+
+
+def test_updat
