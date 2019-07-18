@@ -67,7 +67,6 @@ def test_send_main_block_pool():
 
 	assert c2.main_block_pool.contains(some1 and some2 and some3 and some4)
 
-	pass
 
 def test_send_shard_block_pool():
 	pass
@@ -92,3 +91,8 @@ def test_api_set_get_block_event():
 	api1.get_block(100)
 
 	assert api2.event_mgr.get_block.isSet()
+
+
+
+for event in event_mgr:
+	def test_api_set_event_name():

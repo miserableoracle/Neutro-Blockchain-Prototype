@@ -98,7 +98,7 @@ class Client(threading.Thread):
         if connect_to_peer:
             self.p2p_api.connect(connect_to_peer)
         else:
-            for peer_to_connect_to in configuration.get_peer_list():
+            for peer_to_connect_to in config_util.get_peer_list():
                 self.p2p_api.connect(peer_to_connect_to)
 
     def run(self):
@@ -135,8 +135,8 @@ class Client(threading.Thread):
         # init all the pools
 
         # blocking call only returns list of missing blocks
-        block_list = self.p2p_api.update_chain(
-            self.current_height, self.peer_host, client_net)
+        self.p2p_api.update_chain(
+            self.my_height, self.current_height)
 
         # go over all the blocks that came along since this client was last
         # online

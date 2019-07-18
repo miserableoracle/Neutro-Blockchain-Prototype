@@ -21,7 +21,7 @@ def test_multiple_peer_chain_integration()
     p5 = Peer("0.0.0.0:50505")
     p6 = Peer("0.0.0.0:50506")
 
-    p1.connect(p2.endpoint)
+    p1.connect(p2)
     p2.connect(p3.endpoint)
     p3.connect(p4.endpoint)
     p4.connect(p5.endpoint)
@@ -29,7 +29,7 @@ def test_multiple_peer_chain_integration()
 
     p1.send("hi")
 
-    time.sleep(100 / 1000)
+    time.sleep(300 / 1000)
 
     assert p6.handler.last_msg == "hi"
 
