@@ -12,6 +12,7 @@ class NeutroHandler(Handler):
         super(NeutroHandler, self).__init__(
             peer=peer, pkt_type=type(self).pkt_type)
         self.callback = callback
+        self.peer.last_output = callback
 
     def on_send_pkt(self, target, msg):
 
@@ -28,7 +29,11 @@ class NeutroHandler(Handler):
         data = pkt.data
         self.peer.logger.info("The packet in {0} has been received from {1}".format(pkt.dst, src))
         self.peer.logger.info("src: {}, pkt: {}".format(src, pkt))
-        self.callback(pkt.data)
+        message = "Message from {}: {}".format(str(src), data["msg"])
+        self.peer.last_output = message
+        self.callback(pkt.data["msg"])
+        self.peer.last_output = data
+        print(type(pkt.data["msg"]))
         store_messages(pkt.dst, pkt, pkt.data)
 
 

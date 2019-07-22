@@ -24,10 +24,13 @@ class BlockPool(object):
 
     def add(self, block):
         """adds a block to the pool, also updating the current height"""
-        
+<<<<<<< HEAD
+        if not self.blocks[block.height]:
+=======
         try:
             self.blocks[block.height]
         except:
+>>>>>>> a29d28bb225d67bd0c4f53a01d573b2d46b59fc5
             self.blocks[block.height] = [block]
             if self.current_height < block.height:
                 self.current_height = block.height

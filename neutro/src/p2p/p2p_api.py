@@ -23,50 +23,30 @@ socket.SO_REUSEPORT = 15
 class P2P_API():
 
     def __init__(self):
-        """creates an event manager object"""
+        # creates an event manager object
         self.event_mg = EventManager()
-        self.client_chains = {}
-        self.numbers_block = []
-        self.client_chains_string = {}
 
-    def init_peer(self):
-        return self.create_a_peer(role="sw", name="switch_1", host=("127.0.0.1", 8011))
-
-    def create_a_peer(self, role: str, name: str, host: Tuple[str, int]):
-        """creates and starts a peer with a specified certificate"""
-        self_hash = sh(join(os.getcwd()))
-
-        # Peers must have the same certificate
-        cert = create_self_signed_cert(
-            getcwd(), 'data/certificate.pem', 'data/private.key')
-        peer = Peer(host=host, name=name, role=role,
-                    cert=cert, _hash=self_hash)
+    def create_a_peer(self, host: Tuple[str, int]):
+        """creates and starts a peer through API with a specified certificate"""
+        peer = Peer(host=host)
         peer.start()
         # time.sleep(10)
         # peer.stop()
 
         return peer
 
-    def stop_peer_thread(self, peer):
+    def stop_peer_thread(self, peer) -> None:
         """stops a started peer thread"""
         self.event_mg.error.set()
         time.sleep(5)
         peer.stop()
 
-    def join_peers(self, peer_a: Peer, peer_b: Peer):
-        """sends a join request from peer_a to peer_b"""
-        peer_a.onProcess(['join', '{}:{}'.format(
-            peer_b.server_info.host[0], peer_b.server_info.host[1])])
-
-    def connect(self, peer: Peer, connect_to_peer=None):
+    def connect(self, peer_a: Peer, peer_b: Peer):
         """connects a peer to existing peers"""
 
-        core_peer = self.init_peer()
-        #  returns connect_to_peer if a peer to be connected is set and otherwise returns an initiated peer
-        peer2 = connect_to_peer or core_peer
-
         # add a peer in the net
-        self.join_peers(peer, peer2)
+        peer_a.onProcess(['join', '{}:{}'.format(
+            peer_b.server_info.host[0], peer_b.server_info.host[1])])
         time.sleep(5)
 
         # self.event_mg.block_received.set()
@@ -76,7 +56,8 @@ class P2P_API():
         self.event_mg.height_request.set()
 
         # for each client in the network get the current height from db
-        # store it as a dictionary with host as a key and their height as a value
+        # store it as a dictionary with host as a key and their height as a
+        # value
         for host in client_net:
             self.client_chains.update({host: get_client_chain_height(host)})
 
@@ -85,9 +66,10 @@ class P2P_API():
             # check their height against the actual client height
             if other_height > client_height:
                 self.numbers_block = list(
-                    range(client_height+1, other_height+1))
+                    range(client_height + 1, other_height + 1))
                 self.event_mg.block_request.set()
-                #ToDo: send bootstrap broadcast from client_height+1 to other_height
+                # ToDo: send bootstrap broadcast from client_height+1 to
+                # other_height
 
     def update_tx_pool(self):
         pass
@@ -131,11 +113,11 @@ class P2P_API():
 
         def direct_nodes_of(node_a_hostname: str) -> List[str]:
             """returns and stores a list of hosts directly connected to a given node"""
-
             node_a = from_node.connectlist
             node_a = list(node_a)
             print("Node_a{0}".format(node_a))
             # create a list of hostname only
+
             direct_nodes_of_a = []
 
             for dNodes in node_a:
@@ -162,12 +144,14 @@ class P2P_API():
 
                 # sends a broadcast transaction message from a node to other
                 # directly connected nodes except the core node
-                self.init_peer().handler_broadcast_packet(
-                    host=(None, "sw"), pkt_type=NeutroHandler.pkt_type, **{
+                from_node.handler_broadcast_packet(
+                    host=(None, "all"), pkt_type=NeutroHandler.pkt_type, **{
                         "msg": json_message
                     })
+
         #ToDo: fix indirect nodes - client peers
-        #indirect_nodes_of(from_node)
+        indirect_nodes_of(from_node)
+
 
         # send a broadcast transaction message from core to all the directly
         # connected nodes

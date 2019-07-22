@@ -50,6 +50,17 @@ class VotingTokenTransaction(object):
         """returns an int as hash of this object"""
         return int(self.hash(), 16)
 
+    def __eq__(self, other) -> bool:
+        """
+        checks for equality
+        this is not 100% correct because theoretically 2 diferent entities 
+        could have the same hash, but in that case the whole concept of 
+        Blockchain breaks, so this is of no relevance for now
+        """
+        if not isinstance(other, VotingTokenTransaction):
+            return False
+        return self.hash() == other.hash()
+
     def string(self) -> str:
         """same as __str__"""
         ret = {}
