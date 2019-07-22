@@ -82,6 +82,9 @@ def remove_database():
     removes all blocks, this is just for testing purpouses
     WARNING: use with care, it will delete the complete blockchain!! 
     """
+    raise NotImplementedError("NO U DONT, its better for you")
+    """
     block_path = str(Path(__file__).parent.parent.parent) + \
         "/.data/blocks/"
     shutil.rmtree(block_path)
+    """

@@ -39,6 +39,7 @@ from neutro.src.config.config_util import get_peer_list
 import time
 from enum import Enum
 from .event_manager import EventManager
+from .client_genesis_generator import generate_genesis_block
 
 
 class State(Enum):
@@ -116,46 +117,54 @@ class Client(threading.Thread):
         """updates a client to the current state of the network"""
         self.state = State.UPDATING
 
-        # blocking calls
-        self.current_difficulty = p2p_api.get_current_difficulty()
-        self.current_height = p2p_api.get_current_height()
-        # get last stable chain height
-        # (stable means no forks and 7 confirmations)
-        self.stable_height = block_database.get_stable_height()
-
         # blocking call, connects this peer to other known peers
-        self.connect()
+        standalone = self.connect()
 
-        loggerutil.debug("client connected")
+        if not standalone:
+            # blocking calls
+            self.current_difficulty = p2p_api.get_current_difficulty()
+            self.current_height = p2p_api.get_current_height()
+            # get last stable chain height
+            # (stable means no forks and 7 confirmations)
+            self.stable_height = block_database.get_stable_height()
 
-        # blocking call
-        client_net = self.p2p_api.list_peers_in_net(self.peer)
-        loggerutil.debug(
-            "Client with host {0} - Current state of the net {1}".format(self.peer_host, client_net))
+            loggerutil.debug("client connected")
 
-        # init all the pools
+            # blocking call
+            client_net = self.p2p_api.list_peers_in_net(self.peer)
+            loggerutil.debug(
+                "Client with host {0} - Current state of the net {1}".format(self.peer_host, client_net))
 
-        # blocking call only returns list of missing blocks
-        self.p2p_api.update_chain(
-            self.my_height, self.current_height)
+            # init all the pools
 
-        # go over all the blocks that came along since this client was last
-        # online
-        for b in block_list:
-            self.main_block_pool.add_block(b)
+            # blocking call only returns list of missing blocks
+            self.p2p_api.update_chain(
+                self.my_height, self.current_height)
 
-        # not blocking call because peers could have different versions of the
-        # pool, makes the p2p api request blocks from different peers and send
-        # them all to this client
-        self.p2p_api.update_block_pool()
+            # go over all the blocks that came along since this client was last
+            # online
+            for b in block_list:
+                self.main_block_pool.add_block(b)
 
-        # not blocking call because peers could have different versions of the
-        # pool, makes the p2p api request blocks from different peers and send
-        # them all to this client
-        self.p2p_api.update_tx_pool()
+            # not blocking call because peers could have different versions of the
+            # pool, makes the p2p api request blocks from different peers and send
+            # them all to this client
+            self.p2p_api.update_block_pool()
 
-        # here we should be finished with the update of the client (except for
-        # all blocks in pool and tx in pool)
+            # not blocking call because peers could have different versions of the
+            # pool, makes the p2p api request blocks from different peers and send
+            # them all to this client
+            self.p2p_api.update_tx_pool()
+
+            # here we should be finished with the update of the client (except for
+            # all blocks in pool and tx in pool)
+        else:
+            self.stable_height = block_database.get_stable_height()
+            self.current_height = self.current_height
+
+            if self.stable_height == 0:
+                self.main_block_pool.add(
+                    client_genesis_generator.generate_genesis_block())
 
     def loop(self):
         """this method loops for ever until it is stopped by force or with the "stop" event"""
