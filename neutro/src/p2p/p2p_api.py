@@ -37,8 +37,10 @@ class P2P_API():
         self_hash = sh(join(os.getcwd()))
 
         # Peers must have the same certificate
-        cert = create_self_signed_cert(getcwd(), 'data/certificate.pem', 'data/private.key')
-        peer = Peer(host=host, name=name, role=role, cert=cert, _hash=self_hash)
+        cert = create_self_signed_cert(
+            getcwd(), 'data/certificate.pem', 'data/private.key')
+        peer = Peer(host=host, name=name, role=role,
+                    cert=cert, _hash=self_hash)
         peer.start()
         # time.sleep(10)
         # peer.stop()
@@ -59,8 +61,11 @@ class P2P_API():
     def connect(self, peer: Peer, connect_to_peer=None):
         """connects a peer to existing peers"""
 
+        return False
+
         core_peer = self.init_peer()
-        #  returns connect_to_peer if a peer to be connected is set and otherwise returns an initiated peer
+        # returns connect_to_peer if a peer to be connected is set and
+        # otherwise returns an initiated peer
         peer2 = connect_to_peer or core_peer
 
         # add a peer in the net
@@ -74,7 +79,8 @@ class P2P_API():
         self.event_mg.height_request.set()
 
         # for each client in the network get the current height from db
-        # store it as a dictionary with host as a key and their height as a value
+        # store it as a dictionary with host as a key and their height as a
+        # value
         for host in client_net:
             self.client_chains.update({host: get_client_chain_height(host)})
 
@@ -82,9 +88,11 @@ class P2P_API():
         for other_host, other_height in self.client_chains.items():
             # check their height against the actual client height
             if other_height > client_height:
-                self.numbers_block = list(range(client_height+1, other_height+1))
+                self.numbers_block = list(
+                    range(client_height + 1, other_height + 1))
                 self.event_mg.block_request.set()
-                #ToDo: send bootstrap broadcast from client_height+1 to other_height
+                # ToDo: send bootstrap broadcast from client_height+1 to
+                # other_height
 
     def update_tx_pool(self):
         pass
@@ -163,8 +171,8 @@ class P2P_API():
                     host=(None, "sw"), pkt_type=NeutroHandler.pkt_type, **{
                         "msg": json_message
                     })
-        #ToDo: fix indirect nodes - client peers
-        #indirect_nodes_of(from_node)
+        # ToDo: fix indirect nodes - client peers
+        # indirect_nodes_of(from_node)
 
         # send a broadcast transaction message from core to all the directly
         # connected nodes
@@ -179,4 +187,3 @@ class P2P_API():
 
     def send_block(self, number, the_block_to_number):
         self.client_chains.update({number: the_block_to_number})
-
