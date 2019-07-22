@@ -35,6 +35,7 @@ from neutro.src.client.block_pool import BlockPool
 from neutro.src.client.transaction_pool import TransactionPool
 from neutro.src.p2p.p2p_api import P2P_API
 from neutro.src.p2p.peer import Peer
+from neutro.src.config.config_util import get_peer_list
 import time
 from enum import Enum
 from .event_manager import EventManager
@@ -74,7 +75,7 @@ class Client(threading.Thread):
 
     def __init__(self):
         threading.Thread.__init__(self)
-        self.wallet = wallet_database.load_wallet()
+        #self.wallet = wallet_database.load_wallet()
         self.p2p_api = P2P_API()
 
         self.vote_pool = VotePool()
@@ -98,7 +99,7 @@ class Client(threading.Thread):
         if connect_to_peer:
             self.p2p_api.connect(connect_to_peer)
         else:
-            for peer_to_connect_to in config_util.get_peer_list():
+            for peer_to_connect_to in get_peer_list():
                 self.p2p_api.connect(peer_to_connect_to)
 
     def run(self):
